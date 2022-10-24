@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import ChatListScreen from '../screens/ChatListScreen';
 import ChatSettingsScreen from '../screens/ChatSettingsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ChatScreen from '../screens/ChatScreen';
+import { colors } from '../constants/colors';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -28,7 +30,7 @@ const TabNavigator = () => {
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#25D366',
+        tabBarActiveTintColor: colors.green,
         tabBarInactiveTintColor: 'gray',
       })}
     >
@@ -54,12 +56,21 @@ const MainNavigator = () => {
         component={TabNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="ChatSettings"
         component={ChatSettingsScreen}
         options={{
           headerTitle: 'Settings',
           headerBackTitle: 'Back',
+        }}
+      /> */}
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={{
+          headerBackTitle: 'Back',
+          headerTitleAlign: 'center',
+          headerTitle: '',
         }}
       />
     </Stack.Navigator>
