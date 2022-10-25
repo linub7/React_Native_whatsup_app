@@ -21,7 +21,7 @@ const SigninForm = ({ setIsSignupContent }) => {
     email: '',
     password: '',
   });
-  const [errorText, setErrorText] = useState(null);
+
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
   const handleInputChange = useCallback(
@@ -50,8 +50,7 @@ const SigninForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         keyboardType="email-address"
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['email']}
       />
       <CustomTextInput
         id={'password'}
@@ -62,8 +61,7 @@ const SigninForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         secureTextEntry={true}
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['password']}
       />
 
       <SubmitButton

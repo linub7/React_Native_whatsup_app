@@ -28,8 +28,6 @@ const SignupForm = ({ setIsSignupContent }) => {
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
-  const [errorText, setErrorText] = useState(null);
-
   const handleInputChange = useCallback(
     (inputId, inputValue) => {
       const validationResult = validateInput(inputId, inputValue);
@@ -57,8 +55,7 @@ const SignupForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         keyboardType="default"
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['firstName']}
       />
       <CustomTextInput
         id={'lastName'}
@@ -69,8 +66,7 @@ const SignupForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         keyboardType="default"
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['lastName']}
       />
       <CustomTextInput
         id={'email'}
@@ -81,8 +77,7 @@ const SignupForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         keyboardType="email-address"
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['email']}
       />
       <CustomTextInput
         id={'password'}
@@ -93,8 +88,7 @@ const SignupForm = ({ setIsSignupContent }) => {
         iconPack={Ionicons}
         secureTextEntry={true}
         handleInputChange={handleInputChange}
-        errorText={errorText}
-        setErrorText={setErrorText}
+        errorText={formState.inputValidities['password']}
         autoCapitalize="none"
       />
 
