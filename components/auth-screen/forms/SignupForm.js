@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useState } from 'react';
+import { useReducer, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors } from '../../../constants/colors';
@@ -28,21 +28,23 @@ const SignupForm = ({ setIsSignupContent }) => {
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
-  const handleInputChange = useCallback(
-    (inputId, inputValue) => {
-      const validationResult = validateInput(inputId, inputValue);
-      dispatchFormState({
-        inputId,
-        validationResult,
-      });
+  const handleInputChange = (inputId, inputValue) => {
+    const validationResult = validateInput(inputId, inputValue);
+    dispatchFormState({
+      inputId,
+      validationResult,
+    });
 
-      setValues({ ...values, [inputId]: inputValue });
-    },
-    [dispatchFormState]
-  );
+    setValues({ ...values, [inputId]: inputValue });
+  };
 
   const handleRegister = () => {
-    console.log('Register');
+    console.log({
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      password: values.password,
+    });
   };
   return (
     <>

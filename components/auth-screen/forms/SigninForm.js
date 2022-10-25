@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useReducer, useState } from 'react';
+import { useReducer, useState } from 'react';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
@@ -24,20 +24,20 @@ const SigninForm = ({ setIsSignupContent }) => {
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
-  const handleInputChange = useCallback(
-    (inputId, inputValue) => {
-      const validationResult = validateInput(inputId, inputValue);
-      dispatchFormState({
-        inputId,
-        validationResult,
-      });
-      setValues({ ...values, [inputId]: inputValue });
-    },
-    [dispatchFormState]
-  );
+  const handleInputChange = (inputId, inputValue) => {
+    const validationResult = validateInput(inputId, inputValue);
+    dispatchFormState({
+      inputId,
+      validationResult,
+    });
+    setValues({ ...values, [inputId]: inputValue });
+  };
 
   const handleLogin = () => {
-    console.log('Sign in');
+    console.log({
+      email: values.email,
+      password: values.password,
+    });
   };
   return (
     <>
