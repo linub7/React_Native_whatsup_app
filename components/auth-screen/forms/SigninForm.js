@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useReducer, useState } from 'react';
 import { Alert } from 'react-native';
-import { signinUser } from '../../../api/auth';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { signinUser } from '../../../api/auth';
 import { colors } from '../../../constants/colors';
+import { authenticate } from '../../../store/slices/authSlice';
 import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
 import Spinner from '../../shared/Spinner';
@@ -25,6 +28,8 @@ const SigninForm = ({ setIsSignupContent }) => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
@@ -51,8 +56,18 @@ const SigninForm = ({ setIsSignupContent }) => {
       return;
     }
 
-    console.log(data);
-    setLoading(false);
+    const { success, token, user } = data;
+    if (success) {
+      setLoading(false);
+      dispatch(authenticate({ token, userData: user }));
+      await AsyncStorage.setItem(
+        'userData',
+        JSON.stringify({
+          token,
+          userId: user._id,
+        })
+      );
+    }
   };
   return (
     <>

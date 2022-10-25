@@ -29,15 +29,9 @@ const AuthScreen = ({ navigation }) => {
               <Image source={logo} style={styles.image} resizeMode="contain" />
             </View>
             {isSignupContent ? (
-              <SignupForm
-                isSignupContent={isSignupContent}
-                setIsSignupContent={setIsSignupContent}
-              />
+              <SignupForm setIsSignupContent={setIsSignupContent} />
             ) : (
-              <SigninForm
-                isSignupContent={isSignupContent}
-                setIsSignupContent={setIsSignupContent}
-              />
+              <SigninForm setIsSignupContent={setIsSignupContent} />
             )}
           </KeyboardAvoidingView>
         </ScrollView>

@@ -1,0 +1,53 @@
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import Spinner from '../components/shared/Spinner';
+import { commonStyles } from '../constants/commonStyles';
+import { useDispatch } from 'react-redux';
+import { authenticate, setDidTryAutoLogin } from '../store/slices/authSlice';
+import { getUserData } from '../utils/actions/userActions';
+
+const StartUpScreen = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const tryLogin = async () => {
+      const storedAuthInfo = await AsyncStorage.getItem('userData');
+
+      if (!storedAuthInfo) {
+        dispatch(setDidTryAutoLogin());
+        return;
+      }
+
+      const parsedData = JSON.parse(storedAuthInfo);
+      const { userId, token } = parsedData;
+      if (!token || !userId) {
+        dispatch(setDidTryAutoLogin());
+        return;
+      }
+
+      const data = await getUserData(token);
+      dispatch(
+        authenticate({
+          token,
+          userData: {
+            _id: data?._id,
+            firstName: data?.firstName,
+            lastName: data?.lastName,
+            email: data?.email,
+          },
+        })
+      );
+    };
+
+    tryLogin();
+  }, [dispatch]);
+
+  return (
+    <View style={commonStyles.center}>
+      <Spinner size={'large'} />
+    </View>
+  );
+};
+
+export default StartUpScreen;
