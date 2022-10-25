@@ -1,11 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useCallback, useReducer, useState } from 'react';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
+import { formReducer } from '../../../utils/reducers/formReducer';
 import SubmitButton from '../buttons/SubmitButton';
 import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
+
+const initialState = {
+  inputValidities: {
+    email: false,
+    password: false,
+  },
+  isFormValid: false,
+};
 
 const SigninForm = ({ setIsSignupContent }) => {
   const [values, setValues] = useState({
@@ -13,14 +22,19 @@ const SigninForm = ({ setIsSignupContent }) => {
     password: '',
   });
   const [errorText, setErrorText] = useState(null);
-  const [formIsValid, setFormIsValid] = useState(false);
+  const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
-  const handleInputChange = (inputId, inputValue) => {
-    console.log(validateInput(inputId, inputValue));
-    setValues({ ...values, [inputId]: inputValue });
-  };
-
-  console.log(values);
+  const handleInputChange = useCallback(
+    (inputId, inputValue) => {
+      const validationResult = validateInput(inputId, inputValue);
+      dispatchFormState({
+        inputId,
+        validationResult,
+      });
+      setValues({ ...values, [inputId]: inputValue });
+    },
+    [dispatchFormState]
+  );
 
   const handleLogin = () => {
     console.log('Sign in');
@@ -54,7 +68,7 @@ const SigninForm = ({ setIsSignupContent }) => {
 
       <SubmitButton
         label={'Sign in'}
-        disabled={!formIsValid}
+        disabled={!formState.isFormValid}
         onPress={handleLogin}
         additionalStyle={{ marginTop: 20 }}
       />

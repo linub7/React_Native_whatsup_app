@@ -1,34 +1,12 @@
+import { useCallback, useReducer, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { useReducer, useState } from 'react';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
+import { formReducer } from '../../../utils/reducers/formReducer';
 import SubmitButton from '../buttons/SubmitButton';
 import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
-
-const reducer = (state, action) => {
-  const { validationResult, inputId } = action;
-
-  const updatedValidities = {
-    ...state.inputValidities,
-    [inputId]: validationResult,
-  };
-
-  let updatedFormIsValid = true;
-
-  for (let key in updatedValidities) {
-    if (updatedValidities[key] !== undefined) {
-      updatedFormIsValid = false;
-      break;
-    }
-  }
-
-  return {
-    inputValidities: updatedValidities,
-    isFormValid: updatedFormIsValid,
-  };
-};
 
 const initialState = {
   inputValidities: {
@@ -48,19 +26,22 @@ const SignupForm = ({ setIsSignupContent }) => {
     password: '',
   });
 
-  const [formState, dispatchFormState] = useReducer(reducer, initialState);
+  const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
   const [errorText, setErrorText] = useState(null);
 
-  const handleInputChange = (inputId, inputValue) => {
-    const validationResult = validateInput(inputId, inputValue);
-    dispatchFormState({
-      inputId,
-      validationResult,
-    });
+  const handleInputChange = useCallback(
+    (inputId, inputValue) => {
+      const validationResult = validateInput(inputId, inputValue);
+      dispatchFormState({
+        inputId,
+        validationResult,
+      });
 
-    setValues({ ...values, [inputId]: inputValue });
-  };
+      setValues({ ...values, [inputId]: inputValue });
+    },
+    [dispatchFormState]
+  );
 
   const handleRegister = () => {
     console.log('Register');
