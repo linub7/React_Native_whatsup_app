@@ -4,6 +4,9 @@ import { TextInput } from 'react-native-gesture-handler';
 import { colors } from '../../../constants/colors';
 
 const CustomTextInput = (props) => {
+  const onChangeInput = (text) => {
+    props.handleInputChange(props.id, text);
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{props.label}</Text>
@@ -22,6 +25,8 @@ const CustomTextInput = (props) => {
           value={props.value}
           keyboardType={props.keyboardType}
           secureTextEntry={props.secureTextEntry || false}
+          onChangeText={onChangeInput}
+          autoCapitalize="none"
         />
       </View>
 
