@@ -13,6 +13,7 @@ const SigninForm = ({ setIsSignupContent }) => {
     password: '',
   });
   const [errorText, setErrorText] = useState(null);
+  const [formIsValid, setFormIsValid] = useState(false);
 
   const handleInputChange = (inputId, inputValue) => {
     console.log(validateInput(inputId, inputValue));
@@ -53,7 +54,7 @@ const SigninForm = ({ setIsSignupContent }) => {
 
       <SubmitButton
         label={'Sign in'}
-        // disabled={true}
+        disabled={!formIsValid}
         onPress={handleLogin}
         additionalStyle={{ marginTop: 20 }}
       />

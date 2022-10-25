@@ -1,11 +1,44 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
 import SubmitButton from '../buttons/SubmitButton';
 import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
+
+const reducer = (state, action) => {
+  const { validationResult, inputId } = action;
+
+  const updatedValidities = {
+    ...state.inputValidities,
+    [inputId]: validationResult,
+  };
+
+  let updatedFormIsValid = true;
+
+  for (let key in updatedValidities) {
+    if (updatedValidities[key] !== undefined) {
+      updatedFormIsValid = false;
+      break;
+    }
+  }
+
+  return {
+    inputValidities: updatedValidities,
+    isFormValid: updatedFormIsValid,
+  };
+};
+
+const initialState = {
+  inputValidities: {
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+  },
+  isFormValid: false,
+};
 
 const SignupForm = ({ setIsSignupContent }) => {
   const [values, setValues] = useState({
@@ -14,14 +47,20 @@ const SignupForm = ({ setIsSignupContent }) => {
     email: '',
     password: '',
   });
+
+  const [formState, dispatchFormState] = useReducer(reducer, initialState);
+
   const [errorText, setErrorText] = useState(null);
 
   const handleInputChange = (inputId, inputValue) => {
-    console.log(validateInput(inputId, inputValue));
+    const validationResult = validateInput(inputId, inputValue);
+    dispatchFormState({
+      inputId,
+      validationResult,
+    });
+
     setValues({ ...values, [inputId]: inputValue });
   };
-
-  console.log(values);
 
   const handleRegister = () => {
     console.log('Register');
@@ -80,7 +119,7 @@ const SignupForm = ({ setIsSignupContent }) => {
 
       <SubmitButton
         label={'Sign up'}
-        // disabled={true}
+        disabled={!formState.isFormValid}
         onPress={handleRegister}
         additionalStyle={{ marginTop: 20 }}
       />
