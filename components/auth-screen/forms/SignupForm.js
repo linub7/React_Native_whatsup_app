@@ -7,6 +7,9 @@ import { formReducer } from '../../../utils/reducers/formReducer';
 import SubmitButton from '../buttons/SubmitButton';
 import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
+import { signupUser } from '../../../api/auth';
+import { Alert } from 'react-native';
+import Spinner from '../../shared/Spinner';
 
 const initialState = {
   inputValidities: {
@@ -25,6 +28,7 @@ const SignupForm = ({ setIsSignupContent }) => {
     email: '',
     password: '',
   });
+  const [loading, setLoading] = useState(false);
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
@@ -38,13 +42,22 @@ const SignupForm = ({ setIsSignupContent }) => {
     setValues({ ...values, [inputId]: inputValue });
   };
 
-  const handleRegister = () => {
-    console.log({
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      password: values.password,
-    });
+  const handleRegister = async () => {
+    if (!formState.isFormValid) return;
+
+    setLoading(true);
+
+    const { err, data } = await signupUser(values);
+
+    if (err) {
+      console.log(err);
+      setLoading(false);
+      Alert.alert('OOPS!', err?.error);
+      return;
+    }
+
+    console.log(data);
+    setLoading(false);
   };
   return (
     <>
@@ -94,16 +107,22 @@ const SignupForm = ({ setIsSignupContent }) => {
         autoCapitalize="none"
       />
 
-      <SubmitButton
-        label={'Sign up'}
-        disabled={!formState.isFormValid}
-        onPress={handleRegister}
-        additionalStyle={{ marginTop: 20 }}
-      />
-      <FormsFooter
-        footer={'Already have an account? Signin'}
-        onPress={() => setIsSignupContent(false)}
-      />
+      {loading ? (
+        <Spinner size={'large'} />
+      ) : (
+        <>
+          <SubmitButton
+            label={'Sign up'}
+            disabled={!formState.isFormValid}
+            onPress={handleRegister}
+            additionalStyle={{ marginTop: 20 }}
+          />
+          <FormsFooter
+            footer={'Already have an account? Signin'}
+            onPress={() => setIsSignupContent(false)}
+          />
+        </>
+      )}
     </>
   );
 };

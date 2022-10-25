@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useReducer, useState } from 'react';
+import { Alert } from 'react-native';
+import { signinUser } from '../../../api/auth';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
+import Spinner from '../../shared/Spinner';
 import SubmitButton from '../buttons/SubmitButton';
 import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
@@ -21,6 +24,7 @@ const SigninForm = ({ setIsSignupContent }) => {
     email: '',
     password: '',
   });
+  const [loading, setLoading] = useState(false);
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
@@ -33,11 +37,22 @@ const SigninForm = ({ setIsSignupContent }) => {
     setValues({ ...values, [inputId]: inputValue });
   };
 
-  const handleLogin = () => {
-    console.log({
-      email: values.email,
-      password: values.password,
-    });
+  const handleLogin = async () => {
+    if (!formState.isFormValid) return;
+
+    setLoading(true);
+
+    const { err, data } = await signinUser(values);
+
+    if (err) {
+      console.log(err);
+      setLoading(false);
+      Alert.alert('OOPS!', err?.error);
+      return;
+    }
+
+    console.log(data);
+    setLoading(false);
   };
   return (
     <>
@@ -64,16 +79,22 @@ const SigninForm = ({ setIsSignupContent }) => {
         errorText={formState.inputValidities['password']}
       />
 
-      <SubmitButton
-        label={'Sign in'}
-        disabled={!formState.isFormValid}
-        onPress={handleLogin}
-        additionalStyle={{ marginTop: 20 }}
-      />
-      <FormsFooter
-        footer={"Don't have an account? Signup"}
-        onPress={() => setIsSignupContent(true)}
-      />
+      {loading ? (
+        <Spinner size={'large'} />
+      ) : (
+        <>
+          <SubmitButton
+            label={'Sign in'}
+            disabled={!formState.isFormValid}
+            onPress={handleLogin}
+            additionalStyle={{ marginTop: 20 }}
+          />
+          <FormsFooter
+            footer={"Don't have an account? Signup"}
+            onPress={() => setIsSignupContent(true)}
+          />
+        </>
+      )}
     </>
   );
 };
