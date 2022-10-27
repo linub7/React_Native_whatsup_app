@@ -15,7 +15,6 @@ const TabNavigator = () => {
   return (
     <BottomTabs.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -32,6 +31,8 @@ const TabNavigator = () => {
         },
         tabBarActiveTintColor: colors.green,
         tabBarInactiveTintColor: 'gray',
+        headerTitle: '',
+        headerShadowVisible: false,
       })}
     >
       <BottomTabs.Screen

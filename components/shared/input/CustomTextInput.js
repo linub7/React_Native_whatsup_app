@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-
 import { colors } from '../../../constants/colors';
 
 const CustomTextInput = (props) => {

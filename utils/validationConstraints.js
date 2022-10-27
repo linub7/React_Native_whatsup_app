@@ -54,3 +54,33 @@ export const validatePassword = (id, value) => {
   // then we have to use: validationResult && validationResult[id]
   return validationResult && validationResult[id];
 };
+
+export const validateLength = (id, value, minLength, maxLength, allowEmpty) => {
+  const constraints = {
+    presence: { allowEmpty },
+  };
+
+  if (!allowEmpty || value !== '') {
+    constraints.length = {};
+
+    if (minLength !== null) {
+      constraints.length = {
+        minimum: minLength,
+        message: `must be at least ${minLength} character`,
+      };
+    }
+
+    if (maxLength !== null) {
+      constraints.length = {
+        maximum: maxLength,
+        message: `maximum length is ${maxLength}`,
+      };
+    }
+  }
+  // [id] => if we use without [] -> js assume this: "id", but with [id] ->
+  // js assume this "${value}"
+  const validationResult = validate({ [id]: value }, { [id]: constraints });
+  // because of if we pass all constraints, we get undefined and undefined[id] throw an error ->
+  // then we have to use: validationResult && validationResult[id]
+  return validationResult && validationResult[id];
+};

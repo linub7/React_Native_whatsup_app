@@ -1,39 +1,57 @@
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
+import { Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
-import SubmitButton from '../buttons/SubmitButton';
-import FormsFooter from './FormsFooter';
-import { signupUser } from '../../../api/auth';
-import { Alert } from 'react-native';
-import Spinner from '../../shared/Spinner';
-import { useDispatch, useSelector } from 'react-redux';
-import { authenticate } from '../../../store/slices/authSlice';
 import CustomTextInput from '../../shared/input/CustomTextInput';
+import Spinner from '../../shared/Spinner';
+import SubmitButton from '../../auth-screen/buttons/SubmitButton';
+import { logoutUser, updateUserInfo } from '../../../api/auth';
+import { authenticate, logout } from '../../../store/slices/authSlice';
 
 const initialState = {
   inputValidities: {
     firstName: false,
     lastName: false,
     email: false,
-    password: false,
+    about: false,
   },
   isFormValid: false,
 };
 
-const SignupForm = ({ setIsSignupContent }) => {
+const SettingsForm = () => {
   const [values, setValues] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
+    about: '',
   });
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
+  const { userData, token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    setValues({
+      ...values,
+      firstName: userData?.firstName,
+      lastName: userData?.lastName,
+      email: userData?.email,
+      about: userData?.about,
+    });
+
+    return () => {
+      setValues({
+        firstName: '',
+        lastName: '',
+        email: '',
+      });
+    };
+  }, [userData]);
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
@@ -47,12 +65,21 @@ const SignupForm = ({ setIsSignupContent }) => {
     setValues({ ...values, [inputId]: inputValue });
   };
 
-  const handleRegister = async () => {
-    if (!formState.isFormValid) return;
+  const isUpdateButtonDisabled =
+    !values?.firstName || !values.lastName || !values.email;
 
+  const handleUpdate = async () => {
+    const { firstName, lastName, email, about } = values;
     setLoading(true);
-
-    const { err, data } = await signupUser(values);
+    const { err, data } = await updateUserInfo(
+      {
+        firstName,
+        lastName,
+        email,
+        about,
+      },
+      token
+    );
 
     if (err) {
       console.log(err);
@@ -61,18 +88,18 @@ const SignupForm = ({ setIsSignupContent }) => {
       return;
     }
 
-    const { success, token, user } = data;
+    const { user, success } = data;
     if (success) {
       setLoading(false);
+      Alert.alert('Well Done', 'Your profile updated Successfully ✅');
       dispatch(authenticate({ token, userData: user }));
-      await AsyncStorage.setItem(
-        'userData',
-        JSON.stringify({
-          token,
-          userId: user._id,
-        })
-      );
     }
+  };
+
+  const handleLogout = async () => {
+    await logoutUser();
+    await AsyncStorage.clear();
+    dispatch(logout());
   };
   return (
     <>
@@ -113,17 +140,16 @@ const SignupForm = ({ setIsSignupContent }) => {
         errorText={formState.inputValidities['email']}
       />
       <CustomTextInput
-        id={'password'}
-        label={'Password'}
-        value={values.password}
-        icon={'lock-closed-outline'}
+        id={'about'}
+        label={'about'}
+        value={values.about}
+        icon={'book-outline'}
         size={24}
         color={colors.grey}
         iconPack={Ionicons}
-        secureTextEntry={true}
+        keyboardType="default"
         handleInputChange={handleInputChange}
-        errorText={formState.inputValidities['password']}
-        autoCapitalize="none"
+        errorText={formState.inputValidities['about']}
       />
 
       {loading ? (
@@ -131,19 +157,21 @@ const SignupForm = ({ setIsSignupContent }) => {
       ) : (
         <>
           <SubmitButton
-            label={'Sign up'}
-            disabled={!formState.isFormValid}
-            onPress={handleRegister}
+            label={'Update'}
+            disabled={isUpdateButtonDisabled}
+            onPress={handleUpdate}
             additionalStyle={{ marginTop: 20 }}
-          />
-          <FormsFooter
-            footer={'Already have an account? Signin'}
-            onPress={() => setIsSignupContent(false)}
           />
         </>
       )}
+      <SubmitButton
+        label={'Logout'}
+        onPress={handleLogout}
+        color={colors.red}
+        additionalStyle={{ marginTop: 20 }}
+      />
     </>
   );
 };
 
-export default SignupForm;
+export default SettingsForm;

@@ -64,6 +64,20 @@ export const resetUserPassword = async (values) => {
   }
 };
 
+export const updateUserInfo = async (values, token) => {
+  try {
+    const { data } = await client.put(`/update-user-info`, values, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const getMe = async (token) => {
   try {
     const { data } = await client.get(`/me`, {

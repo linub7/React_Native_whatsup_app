@@ -11,8 +11,8 @@ import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
 import Spinner from '../../shared/Spinner';
 import SubmitButton from '../buttons/SubmitButton';
-import CustomTextInput from '../input/CustomTextInput';
 import FormsFooter from './FormsFooter';
+import CustomTextInput from '../../shared/input/CustomTextInput';
 
 const initialState = {
   inputValidities: {
@@ -74,6 +74,7 @@ const SigninForm = ({ setIsSignupContent }) => {
       <CustomTextInput
         id={'email'}
         label={'Email'}
+        value={values.email}
         icon={'mail-outline'}
         size={24}
         color={colors.grey}
@@ -85,6 +86,7 @@ const SigninForm = ({ setIsSignupContent }) => {
       <CustomTextInput
         id={'password'}
         label={'Password'}
+        value={values.password}
         icon={'lock-closed-outline'}
         size={24}
         color={colors.grey}
