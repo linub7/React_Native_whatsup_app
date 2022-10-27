@@ -11,9 +11,11 @@ const PageTitle = ({ title }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'white',
   },
   text: {
+    marginBottom: 10,
     fontSize: 28,
     color: colors.textColor,
     fontFamily: 'bold',

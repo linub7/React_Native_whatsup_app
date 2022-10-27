@@ -1,13 +1,13 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
 import { logoutUser } from '../api/auth';
 
-AsyncStorage.clear();
-
 const ChatListScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+
+  const { userData } = useSelector((state) => state.auth);
 
   return (
     <View style={styles.container}>

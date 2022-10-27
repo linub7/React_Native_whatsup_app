@@ -8,7 +8,7 @@ import { colors } from '../../../constants/colors';
 import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
 import CustomTextInput from '../../shared/input/CustomTextInput';
-import Spinner from '../../shared/Spinner';
+import Spinner from '../../shared/loading/Spinner';
 import SubmitButton from '../../auth-screen/buttons/SubmitButton';
 import { logoutUser, updateUserInfo } from '../../../api/auth';
 import { authenticate, logout } from '../../../store/slices/authSlice';
@@ -24,34 +24,34 @@ const initialState = {
 };
 
 const SettingsForm = () => {
+  const { userData, token } = useSelector((state) => state.auth);
   const [values, setValues] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    about: '',
+    firstName: userData?.firstName,
+    lastName: userData?.lastName,
+    email: userData?.email,
+    about: userData?.about,
   });
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
-  const { userData, token } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    setValues({
-      ...values,
-      firstName: userData?.firstName,
-      lastName: userData?.lastName,
-      email: userData?.email,
-      about: userData?.about,
-    });
+  // useEffect(() => {
+  //   setValues({
+  //     ...values,
+  //     firstName: userData?.firstName,
+  //     lastName: userData?.lastName,
+  //     email: userData?.email,
+  //     about: userData?.about,
+  //   });
 
-    return () => {
-      setValues({
-        firstName: '',
-        lastName: '',
-        email: '',
-      });
-    };
-  }, [userData]);
+  //   return () => {
+  //     setValues({
+  //       firstName: '',
+  //       lastName: '',
+  //       email: '',
+  //     });
+  //   };
+  // }, [userData]);
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 

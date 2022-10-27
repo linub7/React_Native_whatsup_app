@@ -9,10 +9,11 @@ import SubmitButton from '../buttons/SubmitButton';
 import FormsFooter from './FormsFooter';
 import { signupUser } from '../../../api/auth';
 import { Alert } from 'react-native';
-import Spinner from '../../shared/Spinner';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { authenticate } from '../../../store/slices/authSlice';
 import CustomTextInput from '../../shared/input/CustomTextInput';
+import Spinner from '../../shared/loading/Spinner';
 
 const initialState = {
   inputValidities: {

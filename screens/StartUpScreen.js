@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Spinner from '../components/shared/Spinner';
 import { commonStyles } from '../constants/commonStyles';
 import { useDispatch } from 'react-redux';
 import { authenticate, setDidTryAutoLogin } from '../store/slices/authSlice';
 import { getUserData } from '../utils/actions/userActions';
+import Spinner from '../components/shared/loading/Spinner';
 
 const StartUpScreen = () => {
   const dispatch = useDispatch();
@@ -35,6 +35,8 @@ const StartUpScreen = () => {
             firstName: data?.firstName,
             lastName: data?.lastName,
             email: data?.email,
+            about: data?.about,
+            imageUrl: data?.imageUrl,
           },
         })
       );

@@ -9,10 +9,11 @@ import { colors } from '../../../constants/colors';
 import { authenticate } from '../../../store/slices/authSlice';
 import { validateInput } from '../../../utils/actions/formActions';
 import { formReducer } from '../../../utils/reducers/formReducer';
-import Spinner from '../../shared/Spinner';
+
 import SubmitButton from '../buttons/SubmitButton';
 import FormsFooter from './FormsFooter';
 import CustomTextInput from '../../shared/input/CustomTextInput';
+import Spinner from '../../shared/loading/Spinner';
 
 const initialState = {
   inputValidities: {
