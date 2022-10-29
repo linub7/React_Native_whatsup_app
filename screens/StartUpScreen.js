@@ -36,7 +36,7 @@ const StartUpScreen = () => {
             lastName: data?.lastName,
             email: data?.email,
             about: data?.about,
-            imageUrl: data?.imageUrl,
+            imageUrl: data?.image?.url,
           },
         })
       );

@@ -5,8 +5,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
 } from 'react-native';
 
 import PageContainer from '../components/shared/PageContainer';
@@ -29,11 +27,13 @@ const SettingsScreen = ({ navigation }) => {
   const handlePickImage = async () => {
     const tempUri = await launchImagePicker();
 
-    setUri(tempUri.uri);
+    if (tempUri === undefined) return;
+
+    setUri(tempUri?.uri);
 
     // ImagePicker saves the taken photo to disk and returns a local URI to it
-    let localUri = tempUri.uri;
-    let filename = localUri.split('/').pop();
+    let localUri = tempUri?.uri;
+    let filename = localUri?.split('/').pop();
 
     // Infer the type of the image
     let match = /\.(\w+)$/.exec(filename);
@@ -91,6 +91,7 @@ const SettingsScreen = ({ navigation }) => {
               onPress={handlePickImage}
               imageUri={uri}
               loadedImageUrlFromServer={userData?.imageUrl}
+              isEditable={true}
             />
           )}
 

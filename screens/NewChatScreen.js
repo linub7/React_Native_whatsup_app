@@ -10,6 +10,7 @@ import { commonStyles } from '../constants/commonStyles';
 import { searchUsers } from '../api/user';
 import { useSelector } from 'react-redux';
 import Spinner from '../components/shared/loading/Spinner';
+import SearchResultUserItem from '../components/new-chat-screen/search/SearchResultUserItem';
 
 const NewChatScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,7 @@ const NewChatScreen = ({ navigation }) => {
   const handleChangeInput = (text) => setSearchTerm(text);
 
   const renderSearchResultUser = (itemData) => {
-    return <Text>{itemData.item.firstName}</Text>;
+    return <SearchResultUserItem item={itemData?.item} />;
   };
 
   return (

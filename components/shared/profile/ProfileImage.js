@@ -12,9 +12,11 @@ const ProfileImage = ({
   onPress,
   imageUri,
   loadedImageUrlFromServer,
+  isEditable = false,
 }) => {
+  const Container = isEditable ? TouchableOpacity : View;
   return (
-    <TouchableOpacity style={additionalStyle} onPress={onPress}>
+    <Container style={additionalStyle} onPress={onPress}>
       {loadedImageUrlFromServer ? (
         <Image
           source={{ uri: loadedImageUrlFromServer }}
@@ -31,10 +33,12 @@ const ProfileImage = ({
           style={{ ...styles.image, ...{ width, height } }}
         />
       )}
-      <View style={styles.iconContainer}>
-        <Ionicons name="camera-outline" size={19} color="black" />
-      </View>
-    </TouchableOpacity>
+      {isEditable && (
+        <View style={styles.iconContainer}>
+          <Ionicons name="camera-outline" size={19} color="black" />
+        </View>
+      )}
+    </Container>
   );
 };
 
