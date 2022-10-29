@@ -1,10 +1,20 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { colors } from '../../../constants/colors';
 import ProfileImage from '../../shared/profile/ProfileImage';
 
-const SearchResultUserItem = ({ item }) => {
+const SearchResultUserItem = ({ item, onPress }) => {
   return (
-    <TouchableWithoutFeedback>
+    <TouchableOpacity
+      style={styles.outerContainer}
+      onPress={() => onPress(item._id)}
+    >
       <View style={styles.container}>
         <ProfileImage
           imageUri={item?.image?.url}
@@ -23,11 +33,12 @@ const SearchResultUserItem = ({ item }) => {
           )}
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  outerHeight: { flex: 1 },
   container: {
     flexDirection: 'row',
     paddingVertical: 7,

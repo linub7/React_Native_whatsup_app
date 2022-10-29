@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useCallback, useState } from 'react';
 import {
   ImageBackground,
@@ -9,12 +10,43 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 import backgroundImage from '../assets/images/droplet.jpeg';
 import IconButton from '../components/chat-screen/buttons/IconButton';
 import { colors } from '../constants/colors';
 
-const ChatScreen = ({ navigation }) => {
+const ChatScreen = ({ navigation, route }) => {
   const [messageText, setMessageText] = useState('');
+  const [chatUsers, setChatUsers] = useState([]);
+
+  const chatData = route?.params?.newChatData;
+  const { storedUsers } = useSelector((state) => state.users);
+  const { userData } = useSelector((state) => state.auth);
+
+  console.log({ chatUsers });
+  console.log({ userData });
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: getChatTitleFromName(),
+    });
+
+    setChatUsers(chatData?.users);
+
+    // return () => {
+    //   setMessageText('');
+    //   setChatUsers([]);
+    // };
+  }, [chatUsers]);
+
+  const getChatTitleFromName = () => {
+    const otherUserId = chatUsers.filter((id) => id !== userData._id);
+    console.log({ otherUserId });
+    const otherUserData = storedUsers[otherUserId];
+    console.log({ otherUserData });
+
+    return `${otherUserData?.firstName} ${otherUserData?.lastName}`;
+  };
 
   const handleChangeInput = (txt) => setMessageText(txt);
 

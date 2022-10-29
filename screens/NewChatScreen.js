@@ -3,14 +3,16 @@ import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
+import { useDispatch, useSelector } from 'react-redux';
+
 import CustomHeaderButton from '../components/chat-list-screen/buttons/CustomHeaderButton';
 import PageContainer from '../components/shared/PageContainer';
 import { colors } from '../constants/colors';
 import { commonStyles } from '../constants/commonStyles';
 import { searchUsers } from '../api/user';
-import { useSelector } from 'react-redux';
 import Spinner from '../components/shared/loading/Spinner';
 import SearchResultUserItem from '../components/new-chat-screen/search/SearchResultUserItem';
+import { setStoredUsers } from '../store/slices/userSlice';
 
 const NewChatScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,8 @@ const NewChatScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { token } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     navigation.setOptions({
@@ -57,9 +61,15 @@ const NewChatScreen = ({ navigation }) => {
           setNoResultFound(true);
         } else {
           setLoading(false);
+          setNoResultFound(false);
           setUsers(data?.result);
+          dispatch(setStoredUsers({ newUsers: data?.result }));
         }
       }
+
+      return () => {
+        setUsers();
+      };
     }, 500);
 
     return () => clearTimeout(delaySearch);
@@ -67,8 +77,16 @@ const NewChatScreen = ({ navigation }) => {
 
   const handleChangeInput = (text) => setSearchTerm(text);
 
+  const handleNavigateToChatListScreen = (userId) =>
+    navigation.navigate('ChatList', { selectedUserId: userId });
+
   const renderSearchResultUser = (itemData) => {
-    return <SearchResultUserItem item={itemData?.item} />;
+    return (
+      <SearchResultUserItem
+        item={itemData?.item}
+        onPress={handleNavigateToChatListScreen}
+      />
+    );
   };
 
   return (
