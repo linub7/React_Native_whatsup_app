@@ -12,19 +12,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import backgroundImage from '../assets/images/droplet.jpeg';
+
 import IconButton from '../components/chat-screen/buttons/IconButton';
+import Bubble from '../components/shared/bubble';
+import PageContainer from '../components/shared/PageContainer';
 import { colors } from '../constants/colors';
 
 const ChatScreen = ({ navigation, route }) => {
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
+  const [chatId, setChatId] = useState(route?.params?.chatId);
 
   const chatData = route?.params?.newChatData;
   const { storedUsers } = useSelector((state) => state.users);
   const { userData } = useSelector((state) => state.auth);
-
-  console.log({ chatUsers });
-  console.log({ userData });
 
   useEffect(() => {
     navigation.setOptions({
@@ -33,17 +34,15 @@ const ChatScreen = ({ navigation, route }) => {
 
     setChatUsers(chatData?.users);
 
-    // return () => {
-    //   setMessageText('');
-    //   setChatUsers([]);
-    // };
+    return () => {
+      setMessageText('');
+      setChatUsers([]);
+    };
   }, [chatUsers]);
 
   const getChatTitleFromName = () => {
     const otherUserId = chatUsers.filter((id) => id !== userData._id);
-    console.log({ otherUserId });
     const otherUserData = storedUsers[otherUserId];
-    console.log({ otherUserData });
 
     return `${otherUserData?.firstName} ${otherUserData?.lastName}`;
   };
@@ -62,10 +61,13 @@ const ChatScreen = ({ navigation, route }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
-        <ImageBackground
-          source={backgroundImage}
-          style={styles.bgImage}
-        ></ImageBackground>
+        <ImageBackground source={backgroundImage} style={styles.bgImage}>
+          <PageContainer style={styles.contentContainer}>
+            {!chatId && (
+              <Bubble type={'system'} text={'This is a new chat, Say Hi'} />
+            )}
+          </PageContainer>
+        </ImageBackground>
 
         <View style={styles.inputContainer}>
           <IconButton
@@ -113,6 +115,9 @@ const styles = StyleSheet.create({
   },
   bgImage: {
     flex: 1,
+  },
+  contentContainer: {
+    backgroundColor: 'transparent',
   },
   inputContainer: {
     flexDirection: 'row',

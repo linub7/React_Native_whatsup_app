@@ -7,4 +7,7 @@ export const colors = {
   grey: '#7f8c8d',
   textColor: '#1c1e21',
   red: '#e74c3c',
+  borderColor: '#E2DACC',
+  systemTextColor: '#65644A',
+  beige: '#FEF5C3',
 };
