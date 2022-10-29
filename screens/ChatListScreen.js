@@ -1,13 +1,24 @@
+import { useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
-import { logoutUser } from '../api/auth';
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
+import CustomHeaderButton from '../components/chat-list-screen/buttons/CustomHeaderButton';
 
 const ChatListScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-
-  const { userData } = useSelector((state) => state.auth);
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => {
+        return (
+          <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+            <Item
+              title="New Chat"
+              iconName="create-outline"
+              onPress={() => navigation.navigate('ٔNewChatScreen')}
+            />
+          </HeaderButtons>
+        );
+      },
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
