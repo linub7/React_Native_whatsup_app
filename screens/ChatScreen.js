@@ -11,7 +11,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
+import { createChat } from '../api/chat';
+import { createMessage } from '../api/message';
 import backgroundImage from '../assets/images/droplet.jpeg';
+import CreateChatBubble from '../components/chat-screen/bubble/CreateChatBubble';
 
 import IconButton from '../components/chat-screen/buttons/IconButton';
 import Bubble from '../components/shared/bubble';
@@ -24,8 +27,9 @@ const ChatScreen = ({ navigation, route }) => {
   const [chatId, setChatId] = useState(route?.params?.chatId);
 
   const chatData = route?.params?.newChatData;
+
   const { storedUsers } = useSelector((state) => state.users);
-  const { userData } = useSelector((state) => state.auth);
+  const { userData, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     navigation.setOptions({
@@ -33,11 +37,6 @@ const ChatScreen = ({ navigation, route }) => {
     });
 
     setChatUsers(chatData?.users);
-
-    return () => {
-      setMessageText('');
-      setChatUsers([]);
-    };
   }, [chatUsers]);
 
   const getChatTitleFromName = () => {
@@ -49,8 +48,37 @@ const ChatScreen = ({ navigation, route }) => {
 
   const handleChangeInput = (txt) => setMessageText(txt);
 
-  const handleSendMessage = useCallback(() => {
-    console.log('Send Clicked');
+  const handleCreateChat = async () => {
+    const { err, data } = await createChat(
+      { chatUsers: [chatUsers[0], chatUsers[1]] },
+      token
+    );
+    if (err) {
+      console.log(err);
+      return;
+    }
+    if (data?.success) {
+      setChatId(data?.createdChatId);
+    }
+  };
+
+  console.log(route?.params?.chatId);
+
+  const handleSendMessage = useCallback(async () => {
+    try {
+      let id = route?.params?.chatId;
+
+      if (!id) {
+        // No Chat ID. create the chat
+        const { err, data } = await createMessage(messageText, chatId, token);
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(data);
+      } else {
+      }
+    } catch (error) {}
     setMessageText('');
   }, [messageText]);
 
@@ -64,7 +92,13 @@ const ChatScreen = ({ navigation, route }) => {
         <ImageBackground source={backgroundImage} style={styles.bgImage}>
           <PageContainer style={styles.contentContainer}>
             {!chatId && (
-              <Bubble type={'system'} text={'This is a new chat, Say Hi'} />
+              <>
+                <Bubble type={'system'} text={'This is a new chat, Say Hi'} />
+                <CreateChatBubble
+                  label={'Tap here to create a chat'}
+                  onPress={handleCreateChat}
+                />
+              </>
             )}
           </PageContainer>
         </ImageBackground>

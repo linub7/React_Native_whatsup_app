@@ -7,7 +7,8 @@ import CustomHeaderButton from '../components/chat-list-screen/buttons/CustomHea
 const ChatListScreen = ({ navigation, route }) => {
   const { userData } = useSelector((state) => state.auth);
 
-  const selectedUserToStartChat = route?.params?.selectedUserId;
+  const selectedUser = route?.params?.selectedUserId;
+  console.log(selectedUser);
 
   useEffect(() => {
     navigation.setOptions({
@@ -26,9 +27,9 @@ const ChatListScreen = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (!selectedUserToStartChat) return;
+    if (!selectedUser) return;
 
-    const chatUsers = [selectedUserToStartChat, userData._id];
+    const chatUsers = [selectedUser, userData._id];
 
     const navigationProps = {
       newChatData: { users: chatUsers },

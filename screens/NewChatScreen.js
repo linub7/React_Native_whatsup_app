@@ -77,8 +77,9 @@ const NewChatScreen = ({ navigation }) => {
 
   const handleChangeInput = (text) => setSearchTerm(text);
 
-  const handleNavigateToChatListScreen = (userId) =>
+  const handleNavigateToChatListScreen = (userId) => {
     navigation.navigate('ChatList', { selectedUserId: userId });
+  };
 
   const renderSearchResultUser = (itemData) => {
     return (
