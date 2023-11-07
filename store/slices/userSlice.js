@@ -7,7 +7,10 @@ const userSlice = createSlice({
   },
   reducers: {
     setStoredUsers: (state, action) => {
-      const { newUsers } = action.payload;
+      const {
+        payload: { newUsers },
+      } = action;
+
       const existingUsers = state.storedUsers;
 
       const usersArray = Object.values(newUsers);
@@ -20,6 +23,8 @@ const userSlice = createSlice({
   },
 });
 
-export const setStoredUsers = userSlice.actions.setStoredUsers;
+export const {
+  actions: { setStoredUsers },
+} = userSlice;
 
 export default userSlice.reducer;

@@ -128,7 +128,7 @@ const SignupForm = ({ setIsSignupContent }) => {
       />
 
       {loading ? (
-        <Spinner size={'large'} />
+        <Spinner size={'large'} color={colors.blue} />
       ) : (
         <>
           <SubmitButton

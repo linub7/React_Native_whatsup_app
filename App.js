@@ -1,14 +1,26 @@
 import 'react-native-gesture-handler';
 import { useCallback, useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
+import { io } from 'socket.io-client';
+
+import {
+  APP_DEVELOPMENT,
+  APP_BACKEND_DEVELOPMENT_URL,
+  APP_BACKEND_PRODUCTION_URL,
+} from '@env';
 import AppNavigator from './navigation/AppNavigator';
-import { Provider } from 'react-redux';
 import { store } from './store';
+import SocketContext from './context/SocketContext';
 
 SplashScreen.preventAutoHideAsync();
+
+const socket = io(
+  APP_DEVELOPMENT ? APP_BACKEND_DEVELOPMENT_URL : APP_BACKEND_PRODUCTION_URL
+);
 
 export default function App() {
   const [appIsLoaded, setAppIsLoaded] = useState(false);
@@ -50,9 +62,11 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <SafeAreaProvider style={styles.container} onLayout={onLayout}>
-        <AppNavigator />
-      </SafeAreaProvider>
+      <SocketContext.Provider value={socket}>
+        <SafeAreaProvider style={styles.container} onLayout={onLayout}>
+          <AppNavigator />
+        </SafeAreaProvider>
+      </SocketContext.Provider>
     </Provider>
   );
 }

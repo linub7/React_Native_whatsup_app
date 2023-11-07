@@ -1,14 +1,17 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import { useSelector } from 'react-redux';
-import CustomHeaderButton from '../components/chat-list-screen/buttons/CustomHeaderButton';
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
+
+import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
+import SocketContext from '../../context/SocketContext';
 
 const ChatListScreen = ({ navigation, route }) => {
   const { userData } = useSelector((state) => state.auth);
 
+  const socket = useContext(SocketContext);
+
   const selectedUser = route?.params?.selectedUserId;
-  console.log(selectedUser);
 
   useEffect(() => {
     navigation.setOptions({
@@ -38,13 +41,13 @@ const ChatListScreen = ({ navigation, route }) => {
     navigation.navigate('ChatScreen', navigationProps);
   }, [route?.params]);
 
+  useEffect(() => {
+    socket.emit('join', userData?._id);
+  }, [userData]);
+
   return (
     <View style={styles.container}>
       <Text>Chat List</Text>
-      <Button
-        title="Go to Chat Screen"
-        onPress={() => navigation.navigate('ChatScreen')}
-      />
     </View>
   );
 };

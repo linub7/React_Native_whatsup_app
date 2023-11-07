@@ -1,15 +1,19 @@
-import { createStackNavigator } from '@react-navigation/stack';
+// import { createStackNavigator } from '@react-navigation/stack';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import ChatListScreen from '../screens/ChatListScreen';
-import ChatSettingsScreen from '../screens/ChatSettingsScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import ChatScreen from '../screens/ChatScreen';
 import { colors } from '../constants/colors';
-import NewChatScreen from '../screens/NewChatScreen';
+import { findLoggedInUserChats } from '../api/chat';
+import ChatScreen from '../screens/chat';
+import ChatListScreen from '../screens/chat-list';
+import SettingsScreen from '../screens/settings';
+import ChatSettingsScreen from '../screens/chat-settings';
+import NewChatScreen from '../screens/new-chat';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 const TabNavigator = () => {
@@ -50,7 +54,7 @@ const TabNavigator = () => {
   );
 };
 
-const MainNavigator = () => {
+const StackNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Group>
@@ -59,14 +63,14 @@ const MainNavigator = () => {
           component={TabNavigator}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen
-        name="ChatSettings"
-        component={ChatSettingsScreen}
-        options={{
-          headerTitle: 'Settings',
-          headerBackTitle: 'Back',
-        }}
-      /> */}
+        <Stack.Screen
+          name="ChatSettings"
+          component={ChatSettingsScreen}
+          options={{
+            headerTitle: 'Settings',
+            headerBackTitle: 'Back',
+          }}
+        />
         <Stack.Screen
           name="ChatScreen"
           component={ChatScreen}
@@ -77,7 +81,7 @@ const MainNavigator = () => {
           }}
         />
       </Stack.Group>
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+      <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
         <Stack.Screen
           name="ٔNewChatScreen"
           component={NewChatScreen}
@@ -89,6 +93,25 @@ const MainNavigator = () => {
       </Stack.Group>
     </Stack.Navigator>
   );
+};
+
+const MainNavigator = () => {
+  const { userData, token } = useSelector((state) => state.auth);
+  const { storedUsers } = useSelector((state) => state.users);
+
+  useEffect(() => {
+    const findUserChats = async () => {
+      const { err, data } = await findLoggedInUserChats(token);
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log('chats: ', data?.chats);
+    };
+    findUserChats();
+  }, []);
+
+  return <StackNavigator />;
 };
 
 export default MainNavigator;

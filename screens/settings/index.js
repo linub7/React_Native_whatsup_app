@@ -7,15 +7,16 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import PageContainer from '../components/shared/PageContainer';
-import PageTitle from '../components/shared/PageTitle';
-import SettingsForm from '../components/settings-screen/form/SettingsForm';
-import ProfileImage from '../components/shared/profile/ProfileImage';
-import { launchImagePicker } from '../utils/imagePickerHelper';
-import { updateProfilePhoto } from '../api/user';
+import PageContainer from '../../components/shared/PageContainer';
+import PageTitle from '../../components/shared/PageTitle';
+import SettingsForm from '../../components/settings-screen/form/SettingsForm';
+import ProfileImage from '../../components/shared/profile/ProfileImage';
+import { launchImagePicker } from '../../utils/imagePickerHelper';
+import { updateProfilePhoto } from '../../api/user';
 import { useDispatch, useSelector } from 'react-redux';
-import { authenticate } from '../store/slices/authSlice';
-import Spinner from '../components/shared/loading/Spinner';
+import { authenticate } from '../../store/slices/authSlice';
+import Spinner from '../../components/shared/loading/Spinner';
+import { colors } from '../../constants/colors';
 
 const SettingsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -79,7 +80,7 @@ const SettingsScreen = ({ navigation }) => {
           keyboardVerticalOffset={100}
         >
           {loading ? (
-            <Spinner size={35} />
+            <Spinner size={35} color={colors.blue} />
           ) : (
             <ProfileImage
               width={80}

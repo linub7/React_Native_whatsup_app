@@ -9,10 +9,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import SigninForm from '../components/auth-screen/forms/SigninForm';
-import SignupForm from '../components/auth-screen/forms/SignupForm';
-import PageContainer from '../components/shared/PageContainer';
-import logo from '../assets/images/logo.png';
+import SigninForm from '../../components/auth-screen/forms/SigninForm';
+import SignupForm from '../../components/auth-screen/forms/SignupForm';
+import PageContainer from '../../components/shared/PageContainer';
+import logo from '../../assets/images/logo.png';
 
 const AuthScreen = ({ navigation }) => {
   const [isSignupContent, setIsSignupContent] = useState(false);

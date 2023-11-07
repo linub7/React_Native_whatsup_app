@@ -153,7 +153,7 @@ const SettingsForm = () => {
       />
 
       {loading ? (
-        <Spinner size={'large'} />
+        <Spinner size={'large'} color={colors.blue} />
       ) : (
         <>
           <SubmitButton

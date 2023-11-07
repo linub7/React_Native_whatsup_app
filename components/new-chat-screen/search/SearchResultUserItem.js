@@ -11,10 +11,7 @@ import ProfileImage from '../../shared/profile/ProfileImage';
 
 const SearchResultUserItem = ({ item, onPress }) => {
   return (
-    <TouchableOpacity
-      style={styles.outerContainer}
-      onPress={() => onPress(item._id)}
-    >
+    <TouchableOpacity onPress={() => onPress(item._id)}>
       <View style={styles.container}>
         <ProfileImage
           imageUri={item?.image?.url}

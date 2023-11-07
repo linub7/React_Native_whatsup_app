@@ -1,8 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
-import AuthScreen from '../screens/AuthScreen';
-import StartUpScreen from '../screens/StartUpScreen';
+
 import MainNavigator from './MainNavigator';
+import AuthScreen from '../screens/auth';
+import StartUpScreen from '../screens/start-up';
 
 const AppNavigator = ({}) => {
   const { token, didTryAutoLogin } = useSelector((state) => state.auth);

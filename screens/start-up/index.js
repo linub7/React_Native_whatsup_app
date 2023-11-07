@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { commonStyles } from '../constants/commonStyles';
+import { commonStyles } from '../../constants/commonStyles';
 import { useDispatch } from 'react-redux';
-import { authenticate, setDidTryAutoLogin } from '../store/slices/authSlice';
-import { getUserData } from '../utils/actions/userActions';
-import Spinner from '../components/shared/loading/Spinner';
+import { authenticate, setDidTryAutoLogin } from '../../store/slices/authSlice';
+import { getUserData } from '../../utils/actions/userActions';
+import Spinner from '../../components/shared/loading/Spinner';
+import { colors } from '../../constants/colors';
 
 const StartUpScreen = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,7 @@ const StartUpScreen = () => {
 
   return (
     <View style={commonStyles.center}>
-      <Spinner size={'large'} />
+      <Spinner size={'large'} color={colors.blue} />
     </View>
   );
 };

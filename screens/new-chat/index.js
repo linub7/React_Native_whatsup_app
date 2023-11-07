@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import { useDispatch, useSelector } from 'react-redux';
 
-import CustomHeaderButton from '../components/chat-list-screen/buttons/CustomHeaderButton';
-import PageContainer from '../components/shared/PageContainer';
-import { colors } from '../constants/colors';
-import { commonStyles } from '../constants/commonStyles';
-import { searchUsers } from '../api/user';
-import Spinner from '../components/shared/loading/Spinner';
-import SearchResultUserItem from '../components/new-chat-screen/search/SearchResultUserItem';
-import { setStoredUsers } from '../store/slices/userSlice';
+import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
+import PageContainer from '../../components/shared/PageContainer';
+import { colors } from '../../constants/colors';
+import { commonStyles } from '../../constants/commonStyles';
+import { searchUsers } from '../../api/user';
+import Spinner from '../../components/shared/loading/Spinner';
+import SearchResultUserItem from '../../components/new-chat-screen/search/SearchResultUserItem';
+import { setStoredUsers } from '../../store/slices/userSlice';
 
 const NewChatScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -103,7 +102,7 @@ const NewChatScreen = ({ navigation }) => {
 
       {loading && (
         <View style={commonStyles.center}>
-          <Spinner size={'large'} />
+          <Spinner size={'large'} color={colors.blue} />
         </View>
       )}
 
@@ -115,7 +114,7 @@ const NewChatScreen = ({ navigation }) => {
             color={colors.lightGrey}
             style={styles.noResultIcon}
           />
-          <Text style={styles.noResultText}>No Users Found</Text>
+          <Text style={styles.noResultText}>No Users Found!</Text>
         </View>
       )}
       {users && !noResultFound && (
