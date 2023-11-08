@@ -1,36 +1,42 @@
 import { useCallback, useState, useContext, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
+  Alert,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { createChatHandler } from '../../api/chat';
-import { createMessage } from '../../api/message';
+import { getChatMessagesHandler, sendMessageHandler } from '../../api/message';
 import backgroundImage from '../../assets/images/droplet.jpeg';
-import CreateChatBubble from '../../components/chat-screen/bubble/CreateChatBubble';
 import IconButton from '../../components/chat-screen/buttons/IconButton';
 import Bubble from '../../components/shared/bubble';
 import PageContainer from '../../components/shared/PageContainer';
 import { colors } from '../../constants/colors';
 import { toCapitalizeWord } from '../../utils/general';
 import SocketContext from '../../context/SocketContext';
+import {
+  addMessageToActiveConversationAction,
+  setActiveConversationMessagesAction,
+} from '../../store/slices/chatSlice';
 
 const ChatScreen = ({ navigation, route }) => {
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
-  const [chatId, setChatId] = useState();
 
   const chatData = route?.params?.newChatData;
 
+  const dispatch = useDispatch();
+
   const { storedUsers } = useSelector((state) => state.users);
   const { userData, token } = useSelector((state) => state.auth);
+  const { activeConversation, messages } = useSelector((state) => state.chat);
+
+  console.log({ activeConversation, messages });
 
   const socket = useContext(SocketContext);
 
@@ -43,22 +49,22 @@ const ChatScreen = ({ navigation, route }) => {
   }, [chatUsers]);
 
   useEffect(() => {
-    socket.emit('join', userData?._id);
+    const handleGetChatMessages = async () => {
+      const { err, data } = await getChatMessagesHandler(
+        activeConversation?._id,
+        token
+      );
+      if (err) {
+        console.log(err);
+        return Alert.alert(err?.error);
+      }
+      dispatch(setActiveConversationMessagesAction(data?.data?.data));
+    };
+
+    if (activeConversation?._id) handleGetChatMessages();
+
+    return () => {};
   }, []);
-
-  // useEffect(() => {
-  //   const findChat = async () => {
-  //     const { err, data } = await findChatWithIds(chatData.users[0], token);
-  //     if (err) {
-  //       console.log(err);
-  //       return;
-  //     }
-  //     console.log('findChatWithIds data: ', data);
-  //     setChatId(data?.existedChat._id);
-  //   };
-
-  //   findChat();
-  // }, []);
 
   const getChatTitleFromName = () => {
     const otherUserId = chatUsers.filter((id) => id !== userData._id);
@@ -71,35 +77,23 @@ const ChatScreen = ({ navigation, route }) => {
 
   const handleChangeInput = (txt) => setMessageText(txt);
 
-  const handleCreateChat = async () => {
-    const { err, data } = await createChatHandler(
-      { chatUsers: [chatUsers[0], chatUsers[1]] },
-      token
-    );
-    if (err) {
-      console.log(err);
-      return;
+  const handleSendMessage = useCallback(async () => {
+    try {
+      const formData = new FormData();
+      formData.append('message', messageText);
+      formData?.append('chat', chatData?.chatId);
+      const { err, data } = await sendMessageHandler(formData, token);
+      if (err) {
+        console.log(err);
+        return Alert.alert(err?.error);
+      }
+      await dispatch(addMessageToActiveConversationAction(data?.data?.data));
+      socket.emit('send-message', data?.data?.data);
+    } catch (error) {
+      return Alert.alert('OOPS! something went wrong!');
     }
-    if (data?.success) {
-      setChatId(data?.createdChatId);
-    }
-  };
-
-  // const handleSendMessage = useCallback(async () => {
-  //   try {
-  //     if (!chatId) {
-  //       // No Chat ID. create the chat
-  //       const { err, data } = await createMessage(messageText, chatId, token);
-  //       if (err) {
-  //         console.log(err);
-  //         return;
-  //       }
-  //       console.log('createMessage: ', data);
-  //     } else {
-  //     }
-  //   } catch (error) {}
-  //   setMessageText('');
-  // }, [messageText]);
+    setMessageText('');
+  }, [messageText]);
 
   return (
     <SafeAreaView edges={['right', 'left', 'bottom']} style={styles.container}>
@@ -110,14 +104,8 @@ const ChatScreen = ({ navigation, route }) => {
       >
         <ImageBackground source={backgroundImage} style={styles.bgImage}>
           <PageContainer style={styles.contentContainer}>
-            {!chatId && (
-              <>
-                <Bubble type={'system'} text={'This is a new chat, Say Hi'} />
-                <CreateChatBubble
-                  label={'Tap here to create a chat'}
-                  onPress={handleCreateChat}
-                />
-              </>
+            {!activeConversation?.latestMessage && (
+              <Bubble type={'system'} text={'This is a new chat. Say Hi!'} />
             )}
           </PageContainer>
         </ImageBackground>
@@ -133,8 +121,7 @@ const ChatScreen = ({ navigation, route }) => {
             style={styles.textBox}
             value={messageText}
             onChangeText={handleChangeInput}
-            // onSubmitEditing={handleSendMessage}
-            onSubmitEditing={() => {}}
+            onSubmitEditing={handleSendMessage}
             selectionColor={colors.blue}
           />
           {messageText === '' ? (
@@ -148,8 +135,7 @@ const ChatScreen = ({ navigation, route }) => {
             <IconButton
               sendButton={true}
               icon={'send-outline'}
-              // onPress={handleSendMessage}
-              onPress={() => {}}
+              onPress={handleSendMessage}
               size={24}
               color={colors.blue}
             />

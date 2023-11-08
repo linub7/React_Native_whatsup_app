@@ -1,17 +1,18 @@
 // import { createStackNavigator } from '@react-navigation/stack';
 import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors } from '../constants/colors';
-import { findLoggedInUserChats } from '../api/chat';
+import { getChatsHandler } from '../api/chat';
 import ChatScreen from '../screens/chat';
 import ChatListScreen from '../screens/chat-list';
 import SettingsScreen from '../screens/settings';
 import ChatSettingsScreen from '../screens/chat-settings';
 import NewChatScreen from '../screens/new-chat';
+import { getConversationsAction } from '../store/slices/chatSlice';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -99,16 +100,18 @@ const MainNavigator = () => {
   const { userData, token } = useSelector((state) => state.auth);
   const { storedUsers } = useSelector((state) => state.users);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    const findUserChats = async () => {
-      const { err, data } = await findLoggedInUserChats(token);
+    const handleGetChats = async () => {
+      const { err, data } = await getChatsHandler(token);
       if (err) {
         console.log(err);
         return;
       }
-      console.log('chats: ', data?.chats);
+      dispatch(getConversationsAction(data?.data?.data));
     };
-    findUserChats();
+    handleGetChats();
   }, []);
 
   return <StackNavigator />;
