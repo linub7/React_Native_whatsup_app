@@ -22,11 +22,13 @@ import SocketContext from '../../context/SocketContext';
 import {
   addMessageToActiveConversationAction,
   setActiveConversationMessagesAction,
+  updateActiveConversationAndItsMessagesAction,
 } from '../../store/slices/chatSlice';
 
 const ChatScreen = ({ navigation, route }) => {
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const chatData = route?.params?.newChatData;
 
@@ -36,7 +38,7 @@ const ChatScreen = ({ navigation, route }) => {
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
 
-  console.log({ activeConversation, messages });
+  console.log(chatData);
 
   const socket = useContext(SocketContext);
 
@@ -64,6 +66,17 @@ const ChatScreen = ({ navigation, route }) => {
     if (activeConversation?._id) handleGetChatMessages();
 
     return () => {};
+  }, [activeConversation?._id]);
+
+  useEffect(() => {
+    socket.on('receive-message', (message) => {
+      console.log('new-message received: ', message);
+      dispatch(updateActiveConversationAndItsMessagesAction(message));
+    });
+
+    // listening to typing and stop-typing
+    socket.on('typing', () => setIsTyping(true));
+    socket.on('stop-typing', () => setIsTyping(false));
   }, []);
 
   const getChatTitleFromName = () => {
@@ -75,13 +88,28 @@ const ChatScreen = ({ navigation, route }) => {
     )}`;
   };
 
-  const handleChangeInput = (txt) => setMessageText(txt);
+  const handleChangeInput = (txt) => {
+    setMessageText(txt);
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit('typing', activeConversation?._id);
+    }
+    const lastTypingTime = new Date().getTime(); // getTime() returns in ms
+    const timer = 2000;
+    setTimeout(() => {
+      const now = new Date().getTime();
+      if (now - lastTypingTime >= timer && isTyping) {
+        socket.emit('stop-typing', activeConversation?._id);
+        setIsTyping(false);
+      }
+    }, timer);
+  };
 
   const handleSendMessage = useCallback(async () => {
     try {
       const formData = new FormData();
       formData.append('message', messageText);
-      formData?.append('chat', chatData?.chatId);
+      formData?.append('chat', activeConversation?._id);
       const { err, data } = await sendMessageHandler(formData, token);
       if (err) {
         console.log(err);
@@ -90,6 +118,7 @@ const ChatScreen = ({ navigation, route }) => {
       await dispatch(addMessageToActiveConversationAction(data?.data?.data));
       socket.emit('send-message', data?.data?.data);
     } catch (error) {
+      console.log(error);
       return Alert.alert('OOPS! something went wrong!');
     }
     setMessageText('');
