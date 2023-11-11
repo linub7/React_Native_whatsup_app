@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
@@ -10,6 +10,9 @@ import {
   addToConversationsAction,
   setActiveConversationAction,
 } from '../../store/slices/chatSlice';
+import ChatListScreenChatItem from '../../components/chat-list-screen/chat-item';
+import PageContainer from '../../components/shared/PageContainer';
+import PageTitle from '../../components/shared/PageTitle';
 
 const ChatListScreen = ({ navigation, route }) => {
   const [chatId, setChatId] = useState();
@@ -83,18 +86,23 @@ const ChatListScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Chat List</Text>
-    </View>
+    <PageContainer>
+      <PageTitle title={'Chats'} />
+      <FlatList
+        data={conversations}
+        keyExtractor={(el) => el?._id}
+        renderItem={({ item }) => (
+          <ChatListScreenChatItem
+            item={item}
+            userData={userData}
+            token={token}
+            socket={socket}
+            onlineUsers={onlineUsers}
+          />
+        )}
+      />
+    </PageContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default ChatListScreen;

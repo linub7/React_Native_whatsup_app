@@ -33,8 +33,7 @@ const chatSlice = createSlice({
       state.messages = [...state.messages, payload];
       const relatedConversation = state.conversations.find(
         (conversation) =>
-          conversation?._id?.toString() ===
-          payload?.conversation?._id?.toString()
+          conversation?._id?.toString() === payload?.chat?._id?.toString()
       );
       const conversation = {
         ...relatedConversation,

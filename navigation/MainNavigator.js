@@ -1,5 +1,6 @@
 // import { createStackNavigator } from '@react-navigation/stack';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,6 +14,7 @@ import SettingsScreen from '../screens/settings';
 import ChatSettingsScreen from '../screens/chat-settings';
 import NewChatScreen from '../screens/new-chat';
 import { getConversationsAction } from '../store/slices/chatSlice';
+import { commonStyles } from '../constants/commonStyles';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -97,22 +99,33 @@ const StackNavigator = () => {
 };
 
 const MainNavigator = () => {
-  const { userData, token } = useSelector((state) => state.auth);
-  const { storedUsers } = useSelector((state) => state.users);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { token } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     const handleGetChats = async () => {
+      setIsLoading(true);
       const { err, data } = await getChatsHandler(token);
       if (err) {
         console.log(err);
+        setIsLoading(false);
         return;
       }
+      setIsLoading(false);
       dispatch(getConversationsAction(data?.data?.data));
     };
     handleGetChats();
   }, []);
+
+  if (isLoading)
+    return (
+      <View style={commonStyles.center}>
+        <ActivityIndicator size={'large'} color={colors.green} />
+      </View>
+    );
 
   return <StackNavigator />;
 };

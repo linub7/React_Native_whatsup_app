@@ -1,11 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../../constants/colors';
 import ProfileImage from '../../shared/profile/ProfileImage';
 

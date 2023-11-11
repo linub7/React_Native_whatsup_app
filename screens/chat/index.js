@@ -17,7 +17,11 @@ import IconButton from '../../components/chat-screen/buttons/IconButton';
 import Bubble from '../../components/shared/bubble';
 import PageContainer from '../../components/shared/PageContainer';
 import { colors } from '../../constants/colors';
-import { toCapitalizeWord } from '../../utils/general';
+import {
+  getConversationFirstName,
+  getConversationLastName,
+  toCapitalizeWord,
+} from '../../utils/general';
 import SocketContext from '../../context/SocketContext';
 import {
   addMessageToActiveConversationAction,
@@ -26,19 +30,27 @@ import {
 } from '../../store/slices/chatSlice';
 
 const ChatScreen = ({ navigation, route }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-
-  const chatData = route?.params?.newChatData;
-
-  const dispatch = useDispatch();
-
-  const { storedUsers } = useSelector((state) => state.users);
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
 
-  console.log(chatData);
+  const chatData = route?.params?.newChatData;
+
+  useEffect(() => {
+    if (!activeConversation) return;
+    setFirstName(getConversationFirstName(userData, activeConversation?.users));
+    setLastName(getConversationLastName(userData, activeConversation?.users));
+    return () => {
+      setFirstName();
+      setLastName();
+    };
+  }, [activeConversation?._id]);
+
+  const dispatch = useDispatch();
 
   const socket = useContext(SocketContext);
 
@@ -47,7 +59,7 @@ const ChatScreen = ({ navigation, route }) => {
       headerTitle: getChatTitleFromName(),
     });
 
-    setChatUsers(chatData?.users);
+    setChatUsers(activeConversation?.users);
   }, [chatUsers]);
 
   useEffect(() => {
@@ -80,12 +92,7 @@ const ChatScreen = ({ navigation, route }) => {
   }, []);
 
   const getChatTitleFromName = () => {
-    const otherUserId = chatUsers.filter((id) => id !== userData._id);
-    const otherUserData = storedUsers[otherUserId];
-
-    return `${toCapitalizeWord(otherUserData?.firstName)} ${toCapitalizeWord(
-      otherUserData?.lastName
-    )}`;
+    return `${toCapitalizeWord(firstName)} ${toCapitalizeWord(lastName)}`;
   };
 
   const handleChangeInput = (txt) => {
@@ -109,12 +116,13 @@ const ChatScreen = ({ navigation, route }) => {
     try {
       const formData = new FormData();
       formData.append('message', messageText);
-      formData?.append('chat', activeConversation?._id);
+      formData.append('chat', activeConversation?._id);
       const { err, data } = await sendMessageHandler(formData, token);
       if (err) {
         console.log(err);
         return Alert.alert(err?.error);
       }
+      console.log(data?.data?.data);
       await dispatch(addMessageToActiveConversationAction(data?.data?.data));
       socket.emit('send-message', data?.data?.data);
     } catch (error) {
