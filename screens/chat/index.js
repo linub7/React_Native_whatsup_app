@@ -2,6 +2,7 @@ import { useCallback, useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Alert,
+  FlatList,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -28,6 +29,7 @@ import {
   setActiveConversationMessagesAction,
   updateActiveConversationAndItsMessagesAction,
 } from '../../store/slices/chatSlice';
+import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
 
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -35,6 +37,8 @@ const ChatScreen = ({ navigation, route }) => {
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [errorBannerText, setErrorBannerText] = useState('');
+
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
 
@@ -120,14 +124,20 @@ const ChatScreen = ({ navigation, route }) => {
       const { err, data } = await sendMessageHandler(formData, token);
       if (err) {
         console.log(err);
-        return Alert.alert(err?.error);
+        setErrorBannerText(err?.error);
+        setTimeout(
+          () => setErrorBannerText(''),
+          HIDE_ERROR_BANNER_TEXT_DURATION
+        );
+        return;
       }
-      console.log(data?.data?.data);
       await dispatch(addMessageToActiveConversationAction(data?.data?.data));
       socket.emit('send-message', data?.data?.data);
     } catch (error) {
       console.log(error);
-      return Alert.alert('OOPS! something went wrong!');
+      setErrorBannerText('OOPS! something went wrong! Try again later.');
+      setTimeout(() => setErrorBannerText(''), HIDE_ERROR_BANNER_TEXT_DURATION);
+      return;
     }
     setMessageText('');
   }, [messageText]);
@@ -141,8 +151,24 @@ const ChatScreen = ({ navigation, route }) => {
       >
         <ImageBackground source={backgroundImage} style={styles.bgImage}>
           <PageContainer style={styles.contentContainer}>
-            {!activeConversation?.latestMessage && (
+            {errorBannerText !== '' && (
+              <Bubble type={'error'} text={errorBannerText} />
+            )}
+            {messages?.length < 1 ? (
               <Bubble type={'system'} text={'This is a new chat. Say Hi!'} />
+            ) : (
+              <FlatList
+                data={messages}
+                keyExtractor={(el) => el?._id}
+                renderItem={({ item }) => {
+                  const message = item?.message;
+                  const isOwnMessage = item?.sender?._id === userData?._id;
+                  const messageType = isOwnMessage
+                    ? 'myMessage'
+                    : 'notMyMessage';
+                  return <Bubble type={messageType} text={message} />;
+                }}
+              />
             )}
           </PageContainer>
         </ImageBackground>

@@ -1,0 +1,1 @@
+export const HIDE_ERROR_BANNER_TEXT_DURATION = 5000;

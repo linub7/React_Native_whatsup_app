@@ -7,6 +7,7 @@ import {
   getConversationLastName,
   getConversationPicture,
   getReceiverId,
+  toCapitalizeWord,
 } from '../../../utils/general';
 import ProfileImage from '../../shared/profile/ProfileImage';
 import { colors } from '../../../constants/colors';
@@ -62,7 +63,7 @@ const ChatListScreenChatItem = ({
         />
         <View style={styles.textContainer}>
           <Text numberOfLines={1} style={styles.title}>
-            {firstName} {lastName}
+            {toCapitalizeWord(firstName)} {toCapitalizeWord(lastName)}
           </Text>
           {item?.latestMessage?.message && (
             <Text numberOfLines={1} style={styles.subtitle}>

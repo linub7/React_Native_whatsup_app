@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../../constants/colors';
 
 const Bubble = ({ text, type }) => {
+  const wrapperStyle = { ...styles.wrapperStyle };
   const bubbleStyle = { ...styles.container };
   const textStyle = { ...styles.text };
 
@@ -12,12 +13,26 @@ const Bubble = ({ text, type }) => {
       bubbleStyle.alignItems = 'center';
       bubbleStyle.marginTop = 10;
       break;
+    case 'error':
+      textStyle.color = 'white';
+      bubbleStyle.backgroundColor = colors.red;
+      bubbleStyle.marginTop = 10;
+      break;
+    case 'myMessage':
+      wrapperStyle.justifyContent = 'flex-end';
+      bubbleStyle.backgroundColor = '#E7FED6';
+      bubbleStyle.maxWidth = '90%';
+      break;
+    case 'notMyMessage':
+      wrapperStyle.justifyContent = 'flex-start';
+      bubbleStyle.maxWidth = '90%';
+      break;
 
     default:
       break;
   }
   return (
-    <View style={styles.wrapperStyle}>
+    <View style={wrapperStyle}>
       <View style={bubbleStyle}>
         <Text style={textStyle}>{text}</Text>
       </View>
