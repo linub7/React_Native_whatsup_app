@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { io } from 'socket.io-client';
+import { MenuProvider } from 'react-native-popup-menu';
 
 import {
   APP_DEVELOPMENT,
@@ -64,7 +65,9 @@ export default function App() {
     <Provider store={store}>
       <SocketContext.Provider value={socket}>
         <SafeAreaProvider style={styles.container} onLayout={onLayout}>
-          <AppNavigator />
+          <MenuProvider>
+            <AppNavigator />
+          </MenuProvider>
         </SafeAreaProvider>
       </SocketContext.Provider>
     </Provider>

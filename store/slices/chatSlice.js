@@ -68,6 +68,15 @@ const chatSlice = createSlice({
       state.conversations.splice(idx, 1);
       state.conversations.unshift(conversation);
     },
+    updateMessageStarStatusAction: (state, action) => {
+      const { payload } = action;
+      let tmpMessages = [...state.messages];
+      tmpMessages = tmpMessages.map((msg) =>
+        msg?._id !== payload?._id ? msg : payload
+      );
+
+      state.messages = tmpMessages;
+    },
     addFilesAction: (state, action) => {
       const { payload } = action;
       state.files = [...state.files, payload];
@@ -92,6 +101,7 @@ export const {
     setActiveConversationMessagesAction,
     addMessageToActiveConversationAction,
     updateActiveConversationAndItsMessagesAction,
+    updateMessageStarStatusAction,
     addFilesAction,
     updateFilesAction,
     makeEmptyFilesAction,

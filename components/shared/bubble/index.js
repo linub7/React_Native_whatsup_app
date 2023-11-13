@@ -1,10 +1,29 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../../../constants/colors';
+import { useRef } from 'react';
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Menu, MenuTrigger, MenuOptions } from 'react-native-popup-menu';
+import uuid from 'react-native-uuid';
+import * as Clipboard from 'expo-clipboard';
+import { Ionicons } from '@expo/vector-icons';
 
-const Bubble = ({ text, type }) => {
+import { colors } from '../../../constants/colors';
+import ReplyMenuItem from '../reply-menu-item';
+import { getFormattedTime } from '../../../utils/general';
+
+const Bubble = ({
+  text,
+  type,
+  isStared = false,
+  date,
+  handleToggleStarMessage = () => {},
+}) => {
+  const menuRef = useRef(null);
+  const idRef = useRef(uuid.v4());
+
   const wrapperStyle = { ...styles.wrapperStyle };
   const bubbleStyle = { ...styles.container };
   const textStyle = { ...styles.text };
+
+  let Container = View;
 
   switch (type) {
     case 'system':
@@ -20,25 +39,70 @@ const Bubble = ({ text, type }) => {
       break;
     case 'myMessage':
       wrapperStyle.justifyContent = 'flex-end';
-      bubbleStyle.backgroundColor = '#E7FED6';
+      bubbleStyle.backgroundColor = isStared ? '#CAFDA4' : '#E7FED6';
       bubbleStyle.maxWidth = '90%';
+      Container = TouchableWithoutFeedback;
       break;
     case 'notMyMessage':
       wrapperStyle.justifyContent = 'flex-start';
+      bubbleStyle.backgroundColor = isStared ? '#CAFDA4' : '#fff';
       bubbleStyle.maxWidth = '90%';
+      Container = TouchableWithoutFeedback;
       break;
-
     default:
       break;
   }
+
+  const handleCopyToClipboard = async (text) => {
+    try {
+      await Clipboard.setStringAsync(text);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={wrapperStyle}>
-      <View style={bubbleStyle}>
-        <Text style={textStyle}>{text}</Text>
-      </View>
+      <Container
+        onLongPress={() =>
+          menuRef.current.props.ctx.menuActions.openMenu(idRef.current)
+        }
+        style={{ width: '100%' }}
+      >
+        <View style={bubbleStyle}>
+          <Text style={textStyle}>{text}</Text>
+
+          <View style={styles.timeContainer}>
+            {isStared && (
+              <Ionicons name="star" size={14} color={colors.textColor} />
+            )}
+            <Text style={styles.time}>{getFormattedTime(date)}</Text>
+          </View>
+
+          <Menu name={idRef.current} ref={menuRef}>
+            <MenuTrigger />
+
+            <MenuOptions>
+              <ReplyMenuItem
+                icon={'copy-outline'}
+                size={18}
+                text="Copy to clipboard"
+                onSelect={() => handleCopyToClipboard(text)}
+              />
+              <ReplyMenuItem
+                icon={isStared ? 'star' : 'star-outline'}
+                size={18}
+                text="Star message"
+                onSelect={handleToggleStarMessage}
+              />
+            </MenuOptions>
+          </Menu>
+        </View>
+      </Container>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   wrapperStyle: {
     flexDirection: 'row',
@@ -55,6 +119,18 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'regular',
     letterSpacing: 0.3,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 5,
+  },
+  time: {
+    fontFamily: 'regular',
+    letterSpacing: 0.3,
+    color: colors.grey,
+    fontSize: 12,
   },
 });
 

@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getChatMessagesHandler, sendMessageHandler } from '../../api/message';
+import {
+  getChatMessagesHandler,
+  sendMessageHandler,
+  toggleStarMessageHandler,
+} from '../../api/message';
 import backgroundImage from '../../assets/images/droplet.jpeg';
 import IconButton from '../../components/chat-screen/buttons/IconButton';
 import Bubble from '../../components/shared/bubble';
@@ -28,6 +32,7 @@ import {
   addMessageToActiveConversationAction,
   setActiveConversationMessagesAction,
   updateActiveConversationAndItsMessagesAction,
+  updateMessageStarStatusAction,
 } from '../../store/slices/chatSlice';
 import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
 
@@ -142,6 +147,20 @@ const ChatScreen = ({ navigation, route }) => {
     setMessageText('');
   }, [messageText]);
 
+  const handleToggleStarMessage = useCallback(async (item) => {
+    const { err, data } = await toggleStarMessageHandler(
+      item?._id,
+      item?.chat,
+      token
+    );
+    if (err) {
+      console.log(err);
+      setErrorBannerText(err?.error);
+      setTimeout(() => setErrorBannerText(''), HIDE_ERROR_BANNER_TEXT_DURATION);
+      return;
+    }
+    dispatch(updateMessageStarStatusAction(data?.data?.data));
+  }, []);
   return (
     <SafeAreaView edges={['right', 'left', 'bottom']} style={styles.container}>
       <KeyboardAvoidingView
@@ -166,7 +185,17 @@ const ChatScreen = ({ navigation, route }) => {
                   const messageType = isOwnMessage
                     ? 'myMessage'
                     : 'notMyMessage';
-                  return <Bubble type={messageType} text={message} />;
+                  return (
+                    <Bubble
+                      type={messageType}
+                      text={message}
+                      handleToggleStarMessage={() =>
+                        handleToggleStarMessage(item)
+                      }
+                      isStared={item?.isStared}
+                      date={item?.createdAt}
+                    />
+                  );
                 }}
               />
             )}
