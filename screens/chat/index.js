@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   getChatMessagesHandler,
   sendMessageHandler,
+  sendReplyMessageHandler,
   toggleStarMessageHandler,
 } from '../../api/message';
 import backgroundImage from '../../assets/images/droplet.jpeg';
@@ -35,6 +36,7 @@ import {
   updateMessageStarStatusAction,
 } from '../../store/slices/chatSlice';
 import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
+import ChatScreenReplyTo from '../../components/chat-screen/reply-to';
 
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -43,6 +45,7 @@ const ChatScreen = ({ navigation, route }) => {
   const [chatUsers, setChatUsers] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [errorBannerText, setErrorBannerText] = useState('');
+  const [replyingTo, setReplyingTo] = useState();
 
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
@@ -126,18 +129,39 @@ const ChatScreen = ({ navigation, route }) => {
       const formData = new FormData();
       formData.append('message', messageText);
       formData.append('chat', activeConversation?._id);
-      const { err, data } = await sendMessageHandler(formData, token);
-      if (err) {
-        console.log(err);
-        setErrorBannerText(err?.error);
-        setTimeout(
-          () => setErrorBannerText(''),
-          HIDE_ERROR_BANNER_TEXT_DURATION
+      if (!replyingTo) {
+        const { err, data } = await sendMessageHandler(formData, token);
+        if (err) {
+          console.log(err);
+          setErrorBannerText(err?.error);
+          setTimeout(
+            () => setErrorBannerText(''),
+            HIDE_ERROR_BANNER_TEXT_DURATION
+          );
+          return;
+        }
+        await dispatch(addMessageToActiveConversationAction(data?.data?.data));
+        socket.emit('send-message', data?.data?.data);
+      } else {
+        const { err, data } = await sendReplyMessageHandler(
+          replyingTo?._id,
+          formData,
+          token
         );
-        return;
+        if (err) {
+          console.log(err);
+          setReplyingTo();
+          setErrorBannerText(err?.error);
+          setTimeout(
+            () => setErrorBannerText(''),
+            HIDE_ERROR_BANNER_TEXT_DURATION
+          );
+          return;
+        }
+        await dispatch(addMessageToActiveConversationAction(data?.data?.data));
+        socket.emit('send-message', data?.data?.data);
+        setReplyingTo();
       }
-      await dispatch(addMessageToActiveConversationAction(data?.data?.data));
-      socket.emit('send-message', data?.data?.data);
     } catch (error) {
       console.log(error);
       setErrorBannerText('OOPS! something went wrong! Try again later.');
@@ -161,6 +185,13 @@ const ChatScreen = ({ navigation, route }) => {
     }
     dispatch(updateMessageStarStatusAction(data?.data?.data));
   }, []);
+
+  const handleSetReplyingTo = (item) => setReplyingTo(item);
+  const handleCancelReplyingTo = () => {
+    setReplyingTo();
+    setMessageText('');
+  };
+
   return (
     <SafeAreaView edges={['right', 'left', 'bottom']} style={styles.container}>
       <KeyboardAvoidingView
@@ -181,7 +212,9 @@ const ChatScreen = ({ navigation, route }) => {
                 keyExtractor={(el) => el?._id}
                 renderItem={({ item }) => {
                   const message = item?.message;
-                  const isOwnMessage = item?.sender?._id === userData?._id;
+                  const isOwnMessage = item?.sender?._id
+                    ? item?.sender?._id === userData?._id
+                    : item?.sender === userData?._id;
                   const messageType = isOwnMessage
                     ? 'myMessage'
                     : 'notMyMessage';
@@ -189,17 +222,25 @@ const ChatScreen = ({ navigation, route }) => {
                     <Bubble
                       type={messageType}
                       text={message}
+                      isStared={item?.isStared}
+                      date={item?.createdAt}
                       handleToggleStarMessage={() =>
                         handleToggleStarMessage(item)
                       }
-                      isStared={item?.isStared}
-                      date={item?.createdAt}
+                      handleSetReplyingTo={() => handleSetReplyingTo(item)}
+                      repliedTo={item?.replyTo}
                     />
                   );
                 }}
               />
             )}
           </PageContainer>
+          {replyingTo && (
+            <ChatScreenReplyTo
+              replyingTo={replyingTo}
+              onCancel={handleCancelReplyingTo}
+            />
+          )}
         </ImageBackground>
 
         <View style={styles.inputContainer}>

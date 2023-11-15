@@ -29,6 +29,21 @@ export const sendMessageHandler = async (formData, token) => {
   }
 };
 
+export const sendReplyMessageHandler = async (messageId, formData, token) => {
+  try {
+    const { data } = await client.post(`/messages/${messageId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const toggleStarMessageHandler = async (messageId, chatId, token) => {
   try {
     const { data } = await client.put(

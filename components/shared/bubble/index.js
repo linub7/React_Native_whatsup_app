@@ -14,7 +14,12 @@ const Bubble = ({
   type,
   isStared = false,
   date,
+  repliedTo,
+  fullName,
+  isShowDateAndStar = true,
+  isShowFullName = false,
   handleToggleStarMessage = () => {},
+  handleSetReplyingTo = () => {},
 }) => {
   const menuRef = useRef(null);
   const idRef = useRef(uuid.v4());
@@ -49,6 +54,9 @@ const Bubble = ({
       bubbleStyle.maxWidth = '90%';
       Container = TouchableWithoutFeedback;
       break;
+    case 'reply':
+      bubbleStyle.backgroundColor = '#F2F2F2';
+      break;
     default:
       break;
   }
@@ -70,14 +78,27 @@ const Bubble = ({
         style={{ width: '100%' }}
       >
         <View style={bubbleStyle}>
+          {isShowFullName && fullName && (
+            <Text style={styles.fullName}>{fullName}</Text>
+          )}
+          {repliedTo?.sender?._id && (
+            <Bubble
+              type={'reply'}
+              text={repliedTo?.message}
+              fullName={`${repliedTo?.sender?.firstName} ${repliedTo?.sender?.lastName}`}
+              isShowDateAndStar={false}
+            />
+          )}
           <Text style={textStyle}>{text}</Text>
 
-          <View style={styles.timeContainer}>
-            {isStared && (
-              <Ionicons name="star" size={14} color={colors.textColor} />
-            )}
-            <Text style={styles.time}>{getFormattedTime(date)}</Text>
-          </View>
+          {isShowDateAndStar && (
+            <View style={styles.timeContainer}>
+              {isStared && (
+                <Ionicons name="star" size={14} color={colors.textColor} />
+              )}
+              <Text style={styles.time}>{getFormattedTime(date)}</Text>
+            </View>
+          )}
 
           <Menu name={idRef.current} ref={menuRef}>
             <MenuTrigger />
@@ -94,6 +115,12 @@ const Bubble = ({
                 size={18}
                 text="Star message"
                 onSelect={handleToggleStarMessage}
+              />
+              <ReplyMenuItem
+                icon={'return-up-back-outline'}
+                size={18}
+                text="Reply"
+                onSelect={handleSetReplyingTo}
               />
             </MenuOptions>
           </Menu>
@@ -131,6 +158,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     color: colors.grey,
     fontSize: 12,
+  },
+  fullName: {
+    fontFamily: 'medium',
+    letterSpacing: 0.3,
   },
 });
 
