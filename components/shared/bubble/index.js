@@ -1,5 +1,11 @@
 import { useRef } from 'react';
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Menu, MenuTrigger, MenuOptions } from 'react-native-popup-menu';
 import uuid from 'react-native-uuid';
 import * as Clipboard from 'expo-clipboard';
@@ -18,6 +24,7 @@ const Bubble = ({
   fullName,
   isShowDateAndStar = true,
   isShowFullName = false,
+  imageUrl,
   handleToggleStarMessage = () => {},
   handleSetReplyingTo = () => {},
 }) => {
@@ -85,11 +92,16 @@ const Bubble = ({
             <Bubble
               type={'reply'}
               text={repliedTo?.message}
+              imageUrl={repliedTo?.files[0]?.url}
               fullName={`${repliedTo?.sender?.firstName} ${repliedTo?.sender?.lastName}`}
               isShowDateAndStar={false}
             />
           )}
           <Text style={textStyle}>{text}</Text>
+
+          {imageUrl && (
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+          )}
 
           {isShowDateAndStar && (
             <View style={styles.timeContainer}>
@@ -162,6 +174,11 @@ const styles = StyleSheet.create({
   fullName: {
     fontFamily: 'medium',
     letterSpacing: 0.3,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 5,
   },
 });
 

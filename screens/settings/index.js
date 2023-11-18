@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 import PageContainer from '../../components/shared/PageContainer';
 import PageTitle from '../../components/shared/PageTitle';
@@ -13,7 +14,6 @@ import SettingsForm from '../../components/settings-screen/form/SettingsForm';
 import ProfileImage from '../../components/shared/profile/ProfileImage';
 import { launchImagePicker } from '../../utils/imagePickerHelper';
 import { updateProfilePhoto } from '../../api/user';
-import { useDispatch, useSelector } from 'react-redux';
 import { authenticate } from '../../store/slices/authSlice';
 import Spinner from '../../components/shared/loading/Spinner';
 import { colors } from '../../constants/colors';

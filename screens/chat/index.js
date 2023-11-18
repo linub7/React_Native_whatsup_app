@@ -1,8 +1,10 @@
-import { useCallback, useState, useContext, useEffect } from 'react';
+import { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -11,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 import {
   getChatMessagesHandler,
@@ -37,6 +40,7 @@ import {
 } from '../../store/slices/chatSlice';
 import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
 import ChatScreenReplyTo from '../../components/chat-screen/reply-to';
+import { launchImagePicker, openCamera } from '../../utils/imagePickerHelper';
 
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -46,11 +50,13 @@ const ChatScreen = ({ navigation, route }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [errorBannerText, setErrorBannerText] = useState('');
   const [replyingTo, setReplyingTo] = useState();
+  const [tempImageUri, setTempImageUri] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const flatListRef = useRef();
 
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
-
-  const chatData = route?.params?.newChatData;
 
   useEffect(() => {
     if (!activeConversation) return;
@@ -192,6 +198,62 @@ const ChatScreen = ({ navigation, route }) => {
     setMessageText('');
   };
 
+  const handlePickImage = useCallback(async () => {
+    try {
+      const tempUri = await launchImagePicker();
+      if (tempUri === undefined) return;
+
+      setTempImageUri(tempUri?.assets[0]?.uri);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [tempImageUri]);
+
+  const handleOpenCamera = useCallback(async () => {
+    try {
+      const tempUri = await openCamera();
+      if (tempUri === undefined) return;
+
+      setTempImageUri(tempUri?.assets[0]?.uri);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [tempImageUri]);
+
+  const handleCancelSendImage = () => setTempImageUri('');
+
+  const handleConfirmSendImage = useCallback(async () => {
+    setIsLoading(true);
+
+    let filename = tempImageUri?.split('/').pop();
+
+    // Infer the type of the image
+    let match = /\.(\w+)$/.exec(filename);
+    let type = match ? `image/${match[1]}` : `image`;
+
+    // Upload the image using the fetch and FormData APIs
+    let formData = new FormData();
+    // Assume "photo" is the name of the form field the server expects
+    formData.append('files', { uri: tempImageUri, name: filename, type });
+    formData.append('chat', activeConversation?._id);
+
+    const { err, data } = await sendMessageHandler(formData, token);
+    if (err) {
+      setReplyingTo(null);
+      console.log(err);
+      setErrorBannerText(err?.error);
+      setIsLoading(false);
+      setTempImageUri('');
+      setTimeout(() => setErrorBannerText(''), HIDE_ERROR_BANNER_TEXT_DURATION);
+      return;
+    }
+    setReplyingTo(null);
+    setTempImageUri('');
+    setIsLoading(false);
+    await dispatch(addMessageToActiveConversationAction(data?.data?.data));
+    socket.emit('send-message', data?.data?.data);
+  }, [isLoading, tempImageUri]);
+
   return (
     <SafeAreaView edges={['right', 'left', 'bottom']} style={styles.container}>
       <KeyboardAvoidingView
@@ -205,9 +267,19 @@ const ChatScreen = ({ navigation, route }) => {
               <Bubble type={'error'} text={errorBannerText} />
             )}
             {messages?.length < 1 ? (
-              <Bubble type={'system'} text={'This is a new chat. Say Hi!'} />
+              <Bubble
+                type={'system'}
+                text={'This is a new chat. Say Hi!'}
+                isShowDateAndStar={false}
+              />
             ) : (
               <FlatList
+                ref={(ref) => (flatListRef.current = ref)}
+                onContentSizeChange={() =>
+                  flatListRef.current.scrollToEnd({ animated: false })
+                }
+                onLayout={() => flatListRef.current.scrollToEnd()}
+                showsVerticalScrollIndicator={false}
                 data={messages}
                 keyExtractor={(el) => el?._id}
                 renderItem={({ item }) => {
@@ -229,6 +301,7 @@ const ChatScreen = ({ navigation, route }) => {
                       }
                       handleSetReplyingTo={() => handleSetReplyingTo(item)}
                       repliedTo={item?.replyTo}
+                      imageUrl={item?.files[0]?.url}
                     />
                   );
                 }}
@@ -246,7 +319,7 @@ const ChatScreen = ({ navigation, route }) => {
         <View style={styles.inputContainer}>
           <IconButton
             icon={'add'}
-            onPress={() => console.log('add clicked')}
+            onPress={handlePickImage}
             size={24}
             color={colors.blue}
           />
@@ -260,7 +333,7 @@ const ChatScreen = ({ navigation, route }) => {
           {messageText === '' ? (
             <IconButton
               icon={'camera-outline'}
-              onPress={() => console.log('camera clicked')}
+              onPress={handleOpenCamera}
               size={24}
               color={colors.blue}
             />
@@ -273,6 +346,36 @@ const ChatScreen = ({ navigation, route }) => {
               color={colors.blue}
             />
           )}
+
+          <AwesomeAlert
+            show={tempImageUri !== ''}
+            title="Send Image?"
+            closeOnTouchOutside={true}
+            closeOnHardwareBackPress={false}
+            showCancelButton={true}
+            showConfirmButton={true}
+            cancelText="Cancel"
+            confirmText="Send Image"
+            confirmButtonColor={colors.green}
+            cancelButtonColor={colors.red}
+            titleStyle={styles.popupTitleStyle}
+            onCancelPressed={handleCancelSendImage}
+            onConfirmPressed={handleConfirmSendImage}
+            onDismiss={handleCancelSendImage}
+            customView={
+              <View>
+                {isLoading && (
+                  <ActivityIndicator size={'small'} color={colors.green} />
+                )}
+                {!isLoading && tempImageUri !== '' && (
+                  <Image
+                    source={{ uri: tempImageUri }}
+                    style={styles.tempImageUriStyle}
+                  />
+                )}
+              </View>
+            }
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -306,6 +409,15 @@ const styles = StyleSheet.create({
     borderColor: colors.lightGrey,
     marginHorizontal: 15,
     paddingHorizontal: 12,
+  },
+  popupTitleStyle: {
+    fontFamily: 'medium',
+    letterSpacing: 0.3,
+    color: colors.textColor,
+  },
+  tempImageUriStyle: {
+    width: 200,
+    height: 200,
   },
 });
 

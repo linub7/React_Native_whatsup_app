@@ -1,27 +1,22 @@
 import { useContext, useEffect, useState } from 'react';
-import { Alert, FlatList } from 'react-native';
+import { FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
 import SocketContext from '../../context/SocketContext';
-import { createOrOpenChatHandler } from '../../api/chat';
-import {
-  addToConversationsAction,
-  setActiveConversationAction,
-} from '../../store/slices/chatSlice';
 import ChatListScreenChatItem from '../../components/chat-list-screen/chat-item';
 import PageContainer from '../../components/shared/PageContainer';
 import PageTitle from '../../components/shared/PageTitle';
 
 const ChatListScreen = ({ navigation, route }) => {
-  const [chatId, setChatId] = useState();
+  // const [chatId, setChatId] = useState();
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   const { userData, token } = useSelector((state) => state.auth);
   const { conversations } = useSelector((state) => state.chat);
 
-  const selectedUser = route?.params?.selectedUserId;
+  // const selectedUser = route?.params?.selectedUserId;
 
   const socket = useContext(SocketContext);
   const dispatch = useDispatch();
@@ -51,39 +46,39 @@ const ChatListScreen = ({ navigation, route }) => {
     });
   }, [userData]);
 
-  useEffect(() => {
-    if (!selectedUser) return;
+  // useEffect(() => {
+  //   if (!selectedUser) return;
 
-    handleCreateOrOpenChat();
+  //   handleCreateOrOpenChat();
 
-    const chatUsers = [selectedUser, userData._id];
-    const navigationProps = {
-      newChatData: { users: chatUsers, chatId, onlineUsers },
-    };
+  //   const chatUsers = [selectedUser, userData._id];
+  //   const navigationProps = {
+  //     newChatData: { users: chatUsers, chatId, onlineUsers },
+  //   };
 
-    navigation.navigate('ChatScreen', navigationProps);
+  //   navigation.navigate('ChatScreen', navigationProps);
 
-    return () => setChatId();
-  }, [route?.params]);
+  //   return () => setChatId();
+  // }, [route?.params]);
 
-  const handleCreateOrOpenChat = async () => {
-    const receiverId = selectedUser;
-    const { err, data } = await createOrOpenChatHandler(receiverId, token);
-    if (err) {
-      console.log(err);
-      Alert.alert('OOPS!', err?.error);
-      return;
-    }
-    setChatId(data?.data?.data?._id);
-    await dispatch(setActiveConversationAction(data?.data?.data));
-    socket.emit('join-chat', data?.data?.data?._id);
-    const idx = conversations.findIndex(
-      (item) => item?._id === data?.data?.data?._id
-    );
-    if (idx === -1) {
-      dispatch(addToConversationsAction(data?.data?.data));
-    }
-  };
+  // const handleCreateOrOpenChat = async () => {
+  //   const receiverId = selectedUser;
+  //   const { err, data } = await createOrOpenChatHandler(receiverId, token);
+  //   if (err) {
+  //     console.log(err);
+  //     Alert.alert('OOPS!', err?.error);
+  //     return;
+  //   }
+  //   setChatId(data?.data?.data?._id);
+  //   await dispatch(setActiveConversationAction(data?.data?.data));
+  //   socket.emit('join-chat', data?.data?.data?._id);
+  //   const idx = conversations.findIndex(
+  //     (item) => item?._id === data?.data?.data?._id
+  //   );
+  //   if (idx === -1) {
+  //     dispatch(addToConversationsAction(data?.data?.data));
+  //   }
+  // };
 
   return (
     <PageContainer>

@@ -1,5 +1,12 @@
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useContext, useEffect, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +19,12 @@ import { searchUsers } from '../../api/user';
 import Spinner from '../../components/shared/loading/Spinner';
 import SearchResultUserItem from '../../components/new-chat-screen/search/SearchResultUserItem';
 import { setStoredUsers } from '../../store/slices/userSlice';
+import { createOrOpenChatHandler } from '../../api/chat';
+import {
+  addToConversationsAction,
+  setActiveConversationAction,
+} from '../../store/slices/chatSlice';
+import SocketContext from '../../context/SocketContext';
 
 const NewChatScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -20,8 +33,10 @@ const NewChatScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { token } = useSelector((state) => state.auth);
+  const { conversations } = useSelector((state) => state.chat);
 
   const dispatch = useDispatch();
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     navigation.setOptions({
@@ -76,8 +91,26 @@ const NewChatScreen = ({ navigation }) => {
 
   const handleChangeInput = (text) => setSearchTerm(text);
 
-  const handleNavigateToChatListScreen = (userId) => {
-    navigation.navigate('ChatList', { selectedUserId: userId });
+  const handleNavigateToChatListScreen = async (userId) => {
+    await handleCreateOrOpenChat(userId);
+    navigation.navigate('ChatScreen');
+  };
+
+  const handleCreateOrOpenChat = async (receiverId) => {
+    const { err, data } = await createOrOpenChatHandler(receiverId, token);
+    if (err) {
+      console.log(err);
+      Alert.alert('OOPS!', err?.error);
+      return;
+    }
+    await dispatch(setActiveConversationAction(data?.data?.data));
+    socket.emit('join-chat', data?.data?.data?._id);
+    const idx = conversations.findIndex(
+      (item) => item?._id === data?.data?.data?._id
+    );
+    if (idx === -1) {
+      dispatch(addToConversationsAction(data?.data?.data));
+    }
   };
 
   const renderSearchResultUser = (itemData) => {

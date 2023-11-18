@@ -11,7 +11,27 @@ export const launchImagePicker = async () => {
     quality: 1,
   });
 
-  if (!result.cancelled) {
+  if (!result.canceled) {
+    return result;
+  }
+};
+
+export const openCamera = async () => {
+  const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+  if (permissionResult.granted === false) {
+    console.log('No Permission to access the camera');
+    return;
+  }
+
+  const result = await ImagePicker.launchCameraAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1,
+  });
+
+  if (!result.canceled) {
     return result;
   }
 };

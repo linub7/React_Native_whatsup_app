@@ -1,4 +1,11 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 
@@ -70,6 +77,12 @@ const ChatListScreenChatItem = ({
               {item?.latestMessage?.message}
             </Text>
           )}
+          {item?.latestMessage?.files[0]?.url && (
+            <Image
+              source={{ uri: item?.latestMessage?.files[0]?.url }}
+              style={styles.image}
+            />
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -98,6 +111,11 @@ const styles = StyleSheet.create({
     fontFamily: 'regular',
     color: colors.grey,
     letterSpacing: 0.3,
+  },
+  image: {
+    width: 25,
+    height: 25,
+    borderRadius: 25,
   },
 });
 

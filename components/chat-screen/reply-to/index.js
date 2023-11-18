@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../../constants/colors';
 
 const ChatScreenReplyTo = ({ replyingTo, onCancel = () => {} }) => {
-  console.log(replyingTo);
   const name = `${replyingTo?.sender?.firstName} ${replyingTo?.sender?.lastName}`;
   return (
     <View style={styles.container}>
