@@ -1,10 +1,17 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
 import { colors } from '../../../constants/colors';
 import ProfileImage from '../../shared/profile/ProfileImage';
 
-const SearchResultUserItem = ({ item, onPress }) => {
+const SearchResultUserItem = ({
+  item,
+  onPress,
+  type = '',
+  isChecked = false,
+}) => {
   return (
-    <TouchableOpacity onPress={() => onPress(item._id)}>
+    <TouchableWithoutFeedback onPress={() => onPress(item)}>
       <View style={styles.container}>
         <ProfileImage
           imageUri={item?.image?.url}
@@ -22,8 +29,19 @@ const SearchResultUserItem = ({ item, onPress }) => {
             </Text>
           )}
         </View>
+
+        {type === 'checkbox' && (
+          <View
+            style={{
+              ...styles.iconContainer,
+              ...(isChecked && styles.checkedStyle),
+            }}
+          >
+            <Ionicons name="checkmark" size={18} color={'white'} />
+          </View>
+        )}
       </View>
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -39,6 +57,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     marginLeft: 14,
+    flex: 1,
   },
   title: {
     fontFamily: 'medium',
@@ -49,6 +68,16 @@ const styles = StyleSheet.create({
     fontFamily: 'regular',
     color: colors.grey,
     letterSpacing: 0.3,
+  },
+  iconContainer: {
+    borderWidth: 1,
+    borderRadius: 50,
+    borderColor: colors.lightGrey,
+    backgroundColor: 'white',
+  },
+  checkedStyle: {
+    backgroundColor: colors.green,
+    borderColor: 'transparent',
   },
 });
 export default SearchResultUserItem;

@@ -8,18 +8,19 @@ import SocketContext from '../../context/SocketContext';
 import ChatListScreenChatItem from '../../components/chat-list-screen/chat-item';
 import PageContainer from '../../components/shared/PageContainer';
 import PageTitle from '../../components/shared/PageTitle';
+import ChatListScreenCreateGroupChat from '../../components/chat-list-screen/create-group-chat';
 
 const ChatListScreen = ({ navigation, route }) => {
   // const [chatId, setChatId] = useState();
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   const { userData, token } = useSelector((state) => state.auth);
-  const { conversations } = useSelector((state) => state.chat);
+  const { conversations, groupChatUsers } = useSelector((state) => state.chat);
 
   // const selectedUser = route?.params?.selectedUserId;
 
   const socket = useContext(SocketContext);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   useEffect(() => {
     navigation.setOptions({
@@ -80,9 +81,13 @@ const ChatListScreen = ({ navigation, route }) => {
   //   }
   // };
 
+  const handleNavigateToNewChatScreen = () =>
+    navigation.navigate('ٔNewChatScreen', { isGroupChat: true });
+
   return (
     <PageContainer>
       <PageTitle title={'Chats'} />
+      <ChatListScreenCreateGroupChat onPress={handleNavigateToNewChatScreen} />
       <FlatList
         data={conversations}
         keyExtractor={(el) => el?._id}

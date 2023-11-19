@@ -6,6 +6,7 @@ const initialState = {
   notifications: [],
   messages: [],
   files: [],
+  groupChatUsers: [],
 };
 
 const chatSlice = createSlice({
@@ -90,6 +91,26 @@ const chatSlice = createSlice({
     makeEmptyFilesAction: (state, action) => {
       state.files = [];
     },
+    toggleSelectedUsersForGroupChatAction: (state, action) => {
+      const { payload } = action;
+
+      const tmpGroupChatUsers = [...state.groupChatUsers];
+
+      const idx = tmpGroupChatUsers.findIndex(
+        (user) => user?._id === payload?._id
+      );
+
+      if (idx !== -1) {
+        state.groupChatUsers = tmpGroupChatUsers?.filter(
+          (user) => user?._id !== payload?._id
+        );
+      } else {
+        state.groupChatUsers = [...tmpGroupChatUsers, payload];
+      }
+    },
+    makeEmptySelectedUsersForGroupChatAction: (state, action) => {
+      state.groupChatUsers = [];
+    },
   },
 });
 
@@ -105,6 +126,8 @@ export const {
     addFilesAction,
     updateFilesAction,
     makeEmptyFilesAction,
+    toggleSelectedUsersForGroupChatAction,
+    makeEmptySelectedUsersForGroupChatAction,
   },
 } = chatSlice;
 

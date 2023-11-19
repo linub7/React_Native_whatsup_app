@@ -11,7 +11,7 @@ const PageTitle = ({ title }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     backgroundColor: 'white',
   },
   text: {

@@ -3,7 +3,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import defaultImage from '../../../assets/images/userImage.jpeg';
 import { colors } from '../../../constants/colors';
-import { useState } from 'react';
 
 const ProfileImage = ({
   width,
@@ -13,6 +12,8 @@ const ProfileImage = ({
   imageUri,
   loadedImageUrlFromServer,
   isEditable = false,
+  listItem = false,
+  showRemoveButton = false,
 }) => {
   const Container = isEditable ? TouchableOpacity : View;
   return (
@@ -33,9 +34,14 @@ const ProfileImage = ({
           style={{ ...styles.image, ...{ width, height } }}
         />
       )}
-      {isEditable && (
+      {isEditable && !listItem && (
         <View style={styles.iconContainer}>
           <Ionicons name="camera-outline" size={19} color="black" />
+        </View>
+      )}
+      {showRemoveButton && (
+        <View style={styles.removeIconContainer}>
+          <Ionicons name="close" size={15} color="black" />
         </View>
       )}
     </Container>
@@ -52,6 +58,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 144,
+    backgroundColor: colors.lightGrey,
+    borderRadius: 20,
+    padding: 4,
+  },
+  removeIconContainer: {
+    position: 'absolute',
+    bottom: -3,
+    right: -3,
     backgroundColor: colors.lightGrey,
     borderRadius: 20,
     padding: 4,
