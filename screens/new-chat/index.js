@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -19,7 +19,10 @@ import { searchUsers } from '../../api/user';
 import Spinner from '../../components/shared/loading/Spinner';
 import SearchResultUserItem from '../../components/new-chat-screen/search/SearchResultUserItem';
 import { setStoredUsers } from '../../store/slices/userSlice';
-import { createOrOpenChatHandler } from '../../api/chat';
+import {
+  createGroupChatHandler,
+  createOrOpenChatHandler,
+} from '../../api/chat';
 import {
   addToConversationsAction,
   makeEmptySelectedUsersForGroupChatAction,
@@ -35,6 +38,7 @@ const NewChatScreen = ({ route, navigation }) => {
   const [noResultFound, setNoResultFound] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [chatName, setChatName] = useState('');
+  const [createGroupLoading, setCreateGroupLoading] = useState(false);
 
   const selectedUsersListRef = useRef();
 
@@ -73,7 +77,7 @@ const NewChatScreen = ({ route, navigation }) => {
                 title="Create"
                 disabled={isGroupChatDisabled}
                 color={isGroupChatDisabled ? colors.lightGrey : undefined}
-                onPress={() => console.log('create')}
+                onPress={handleCreateGroup}
               />
             )}
           </HeaderButtons>
@@ -140,7 +144,12 @@ const NewChatScreen = ({ route, navigation }) => {
   };
 
   const handleCreateOrOpenChat = async (receiverId) => {
-    const { err, data } = await createOrOpenChatHandler(receiverId, token);
+    const isGroup = false;
+    const { err, data } = await createOrOpenChatHandler(
+      receiverId,
+      isGroup,
+      token
+    );
     if (err) {
       console.log(err);
       Alert.alert('OOPS!', err?.error);
@@ -155,6 +164,35 @@ const NewChatScreen = ({ route, navigation }) => {
       dispatch(addToConversationsAction(data?.data?.data));
     }
   };
+
+  const handleCreateGroup = useCallback(async () => {
+    let users = [];
+    for (const item of groupChatUsers) {
+      users?.push(item?._id);
+    }
+    setCreateGroupLoading(true);
+    const name = chatName;
+    const { err, data } = await createGroupChatHandler(users, name, token);
+    if (err) {
+      console.log(err);
+      setCreateGroupLoading(false);
+      Alert.alert('OOPS!', err?.error);
+      await dispatch(makeEmptySelectedUsersForGroupChatAction());
+      return;
+    }
+    await dispatch(makeEmptySelectedUsersForGroupChatAction());
+    await dispatch(setActiveConversationAction(data?.data?.data));
+    socket.emit('join-chat', data?.data?.data?._id);
+    const idx = conversations.findIndex(
+      (item) => item?._id === data?.data?.data?._id
+    );
+    if (idx === -1) {
+      dispatch(addToConversationsAction(data?.data?.data));
+    }
+    setCreateGroupLoading(false);
+    setChatName('');
+    navigation.navigate('ChatScreen');
+  }, [createGroupLoading, chatName, groupChatUsers]);
 
   const renderSearchResultUser = (itemData) => {
     const idx = groupChatUsers?.findIndex(

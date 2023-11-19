@@ -1,10 +1,10 @@
 import client from '../client';
 
-export const createOrOpenChatHandler = async (receiverId, token) => {
+export const createOrOpenChatHandler = async (receiverId, isGroup, token) => {
   try {
     const { data } = await client.post(
       `/chats`,
-      { receiverId },
+      { receiverId, isGroup },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -25,6 +25,24 @@ export const getChatsHandler = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
+export const createGroupChatHandler = async (users, name, token) => {
+  try {
+    const { data } = await client.post(
+      `/chats/group`,
+      { users, name },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return { data };
   } catch (error) {
     const { response } = error;

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
@@ -15,7 +15,7 @@ const ChatListScreen = ({ navigation, route }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   const { userData, token } = useSelector((state) => state.auth);
-  const { conversations, groupChatUsers } = useSelector((state) => state.chat);
+  const { conversations } = useSelector((state) => state.chat);
 
   // const selectedUser = route?.params?.selectedUserId;
 

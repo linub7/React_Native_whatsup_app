@@ -20,6 +20,7 @@ import ProfileImage from '../../shared/profile/ProfileImage';
 import { colors } from '../../../constants/colors';
 import { createOrOpenChatHandler } from '../../../api/chat';
 import { setActiveConversationAction } from '../../../store/slices/chatSlice';
+import { DEFAULT_GROUP_IMAGE_URL } from '../../../constants';
 
 const ChatListScreenChatItem = ({
   item,
@@ -30,15 +31,30 @@ const ChatListScreenChatItem = ({
 }) => {
   const firstName = getConversationFirstName(userData, item?.users);
   const lastName = getConversationLastName(userData, item?.users);
-  const image = getConversationPicture(userData, item?.users);
-  const otherUserId = getReceiverId(userData, item?.users);
+
+  const image =
+    item?.isGroup && item?.picture?.url
+      ? item?.picture?.url
+      : item?.isGroup && !item?.picture?.url
+      ? DEFAULT_GROUP_IMAGE_URL
+      : getConversationPicture(userData, item?.users);
+
+  const otherUserId = item?.isGroup
+    ? item?._id
+    : getReceiverId(userData, item?.users);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
   const handleNavigateToChatListScreen = async (userId) => {
     const receiverId = userId;
-    const { err, data } = await createOrOpenChatHandler(receiverId, token);
+    const isGroup = item?.isGroup;
+
+    const { err, data } = await createOrOpenChatHandler(
+      receiverId,
+      isGroup,
+      token
+    );
     if (err) {
       console.log(err);
       Alert.alert('OOPS!', err?.error);
@@ -70,7 +86,9 @@ const ChatListScreenChatItem = ({
         />
         <View style={styles.textContainer}>
           <Text numberOfLines={1} style={styles.title}>
-            {toCapitalizeWord(firstName)} {toCapitalizeWord(lastName)}
+            {item?.isGroup
+              ? item?.name
+              : `${toCapitalizeWord(firstName)} ${toCapitalizeWord(lastName)}`}
           </Text>
           {item?.latestMessage?.message && (
             <Text numberOfLines={1} style={styles.subtitle}>

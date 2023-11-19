@@ -45,6 +45,7 @@ import { launchImagePicker, openCamera } from '../../utils/imagePickerHelper';
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [chatTitle, setChatTitle] = useState('');
   const [messageText, setMessageText] = useState('');
   const [chatUsers, setChatUsers] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -62,9 +63,11 @@ const ChatScreen = ({ navigation, route }) => {
     if (!activeConversation) return;
     setFirstName(getConversationFirstName(userData, activeConversation?.users));
     setLastName(getConversationLastName(userData, activeConversation?.users));
+    activeConversation?.name && setChatTitle(activeConversation?.name);
     return () => {
-      setFirstName();
-      setLastName();
+      setFirstName('');
+      setLastName('');
+      setChatTitle('');
     };
   }, [activeConversation?._id]);
 
@@ -74,7 +77,9 @@ const ChatScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: getChatTitleFromName(),
+      headerTitle: activeConversation?.name
+        ? toCapitalizeWord(chatTitle)
+        : getChatTitleFromName(),
     });
 
     setChatUsers(activeConversation?.users);
