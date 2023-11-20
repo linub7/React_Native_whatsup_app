@@ -1,6 +1,12 @@
 // import { createStackNavigator } from '@react-navigation/stack';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  View,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -127,7 +133,20 @@ const MainNavigator = () => {
       </View>
     );
 
-  return <StackNavigator />;
+  return (
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <StackNavigator />
+    </KeyboardAvoidingView>
+  );
 };
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+});
 
 export default MainNavigator;

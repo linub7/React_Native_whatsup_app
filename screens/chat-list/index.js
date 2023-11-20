@@ -17,6 +17,8 @@ const ChatListScreen = ({ navigation, route }) => {
   const { userData, token } = useSelector((state) => state.auth);
   const { conversations } = useSelector((state) => state.chat);
 
+  //TODO: get older conversations by scrolling to bottom to optimize state management size
+
   // const selectedUser = route?.params?.selectedUserId;
 
   const socket = useContext(SocketContext);

@@ -54,6 +54,8 @@ const ChatScreen = ({ navigation, route }) => {
   const [tempImageUri, setTempImageUri] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  //TODO: get older messages by scrolling to top to optimize state management size
+
   const flatListRef = useRef();
 
   const { userData, token } = useSelector((state) => state.auth);
@@ -261,128 +263,127 @@ const ChatScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView edges={['right', 'left', 'bottom']} style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.screen}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={100}
-      >
-        <ImageBackground source={backgroundImage} style={styles.bgImage}>
-          <PageContainer style={styles.contentContainer}>
-            {errorBannerText !== '' && (
-              <Bubble type={'error'} text={errorBannerText} />
-            )}
-            {messages?.length < 1 ? (
-              <Bubble
-                type={'system'}
-                text={'This is a new chat. Say Hi!'}
-                isShowDateAndStar={false}
-              />
-            ) : (
-              <FlatList
-                ref={(ref) => (flatListRef.current = ref)}
-                onContentSizeChange={() =>
-                  flatListRef.current.scrollToEnd({ animated: false })
-                }
-                onLayout={() => flatListRef.current.scrollToEnd()}
-                showsVerticalScrollIndicator={false}
-                data={messages}
-                keyExtractor={(el) => el?._id}
-                renderItem={({ item }) => {
-                  const message = item?.message;
-                  const isOwnMessage = item?.sender?._id
-                    ? item?.sender?._id === userData?._id
-                    : item?.sender === userData?._id;
-                  const messageType = isOwnMessage
-                    ? 'myMessage'
-                    : 'notMyMessage';
-                  return (
-                    <Bubble
-                      type={messageType}
-                      text={message}
-                      isStared={item?.isStared}
-                      date={item?.createdAt}
-                      handleToggleStarMessage={() =>
-                        handleToggleStarMessage(item)
-                      }
-                      handleSetReplyingTo={() => handleSetReplyingTo(item)}
-                      repliedTo={item?.replyTo}
-                      imageUrl={item?.files[0]?.url}
-                    />
-                  );
-                }}
-              />
-            )}
-          </PageContainer>
-          {replyingTo && (
-            <ChatScreenReplyTo
-              replyingTo={replyingTo}
-              onCancel={handleCancelReplyingTo}
+      <ImageBackground source={backgroundImage} style={styles.bgImage}>
+        <PageContainer style={styles.contentContainer}>
+          {errorBannerText !== '' && (
+            <Bubble type={'error'} text={errorBannerText} />
+          )}
+          {messages?.length < 1 ? (
+            <Bubble
+              type={'system'}
+              text={'This is a new chat. Say Hi!'}
+              isShowDateAndStar={false}
+            />
+          ) : (
+            <FlatList
+              ref={(ref) => (flatListRef.current = ref)}
+              onContentSizeChange={() =>
+                flatListRef.current.scrollToEnd({ animated: false })
+              }
+              onLayout={() => flatListRef.current.scrollToEnd()}
+              showsVerticalScrollIndicator={false}
+              data={messages}
+              keyExtractor={(el) => el?._id}
+              renderItem={({ item }) => {
+                const message = item?.message;
+                const isOwnMessage = item?.sender?._id
+                  ? item?.sender?._id === userData?._id
+                  : item?.sender === userData?._id;
+                const messageType = isOwnMessage ? 'myMessage' : 'notMyMessage';
+                const senderFullName = `${item?.sender?.firstName} ${item?.sender?.lastName}`;
+                return (
+                  <Bubble
+                    type={messageType}
+                    text={message}
+                    isStared={item?.isStared}
+                    date={item?.createdAt}
+                    handleToggleStarMessage={() =>
+                      handleToggleStarMessage(item)
+                    }
+                    handleSetReplyingTo={() => handleSetReplyingTo(item)}
+                    repliedTo={item?.replyTo}
+                    imageUrl={item?.files[0]?.url}
+                    fullName={senderFullName}
+                    isShowFullName={
+                      !item?.chat?.isGroup || isOwnMessage
+                        ? undefined
+                        : senderFullName
+                    }
+                  />
+                );
+              }}
             />
           )}
-        </ImageBackground>
+        </PageContainer>
+        {replyingTo && (
+          <ChatScreenReplyTo
+            replyingTo={replyingTo}
+            onCancel={handleCancelReplyingTo}
+          />
+        )}
+      </ImageBackground>
 
-        <View style={styles.inputContainer}>
+      <View style={styles.inputContainer}>
+        <IconButton
+          icon={'add'}
+          onPress={handlePickImage}
+          size={24}
+          color={colors.blue}
+        />
+        <TextInput
+          style={styles.textBox}
+          value={messageText}
+          onChangeText={handleChangeInput}
+          onSubmitEditing={handleSendMessage}
+          selectionColor={colors.blue}
+        />
+        {messageText === '' ? (
           <IconButton
-            icon={'add'}
-            onPress={handlePickImage}
+            icon={'camera-outline'}
+            onPress={handleOpenCamera}
             size={24}
             color={colors.blue}
           />
-          <TextInput
-            style={styles.textBox}
-            value={messageText}
-            onChangeText={handleChangeInput}
-            onSubmitEditing={handleSendMessage}
-            selectionColor={colors.blue}
+        ) : (
+          <IconButton
+            sendButton={true}
+            icon={'send-outline'}
+            onPress={handleSendMessage}
+            size={24}
+            color={colors.blue}
           />
-          {messageText === '' ? (
-            <IconButton
-              icon={'camera-outline'}
-              onPress={handleOpenCamera}
-              size={24}
-              color={colors.blue}
-            />
-          ) : (
-            <IconButton
-              sendButton={true}
-              icon={'send-outline'}
-              onPress={handleSendMessage}
-              size={24}
-              color={colors.blue}
-            />
-          )}
+        )}
 
-          <AwesomeAlert
-            show={tempImageUri !== ''}
-            title="Send Image?"
-            closeOnTouchOutside={true}
-            closeOnHardwareBackPress={false}
-            showCancelButton={true}
-            showConfirmButton={true}
-            cancelText="Cancel"
-            confirmText="Send Image"
-            confirmButtonColor={colors.green}
-            cancelButtonColor={colors.red}
-            titleStyle={styles.popupTitleStyle}
-            onCancelPressed={handleCancelSendImage}
-            onConfirmPressed={handleConfirmSendImage}
-            onDismiss={handleCancelSendImage}
-            customView={
-              <View>
-                {isLoading && (
-                  <ActivityIndicator size={'small'} color={colors.green} />
-                )}
-                {!isLoading && tempImageUri !== '' && (
-                  <Image
-                    source={{ uri: tempImageUri }}
-                    style={styles.tempImageUriStyle}
-                  />
-                )}
-              </View>
-            }
-          />
-        </View>
-      </KeyboardAvoidingView>
+        <AwesomeAlert
+          show={tempImageUri !== ''}
+          title="Send Image?"
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="Cancel"
+          confirmText="Send Image"
+          confirmButtonColor={colors.green}
+          cancelButtonColor={colors.red}
+          titleStyle={styles.popupTitleStyle}
+          onCancelPressed={handleCancelSendImage}
+          onConfirmPressed={handleConfirmSendImage}
+          onDismiss={handleCancelSendImage}
+          customView={
+            <View>
+              {isLoading && (
+                <ActivityIndicator size={'small'} color={colors.green} />
+              )}
+              {!isLoading && tempImageUri !== '' && (
+                <Image
+                  source={{ uri: tempImageUri }}
+                  style={styles.tempImageUriStyle}
+                />
+              )}
+            </View>
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -391,9 +392,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-  },
-  screen: {
-    flex: 1,
   },
   bgImage: {
     flex: 1,
