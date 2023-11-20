@@ -49,3 +49,17 @@ export const createGroupChatHandler = async (users, name, token) => {
     return { err: response?.data };
   }
 };
+
+export const getCommonChatsHandler = async (otherUser, token) => {
+  try {
+    const { data } = await client.get(`/chats/common?otherUser=${otherUser}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};

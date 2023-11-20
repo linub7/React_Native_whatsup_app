@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   getConversationFirstName,
@@ -28,6 +29,7 @@ const ChatListScreenChatItem = ({
   token,
   socket,
   onlineUsers,
+  type,
 }) => {
   const firstName = getConversationFirstName(userData, item?.users);
   const lastName = getConversationLastName(userData, item?.users);
@@ -102,6 +104,12 @@ const ChatListScreenChatItem = ({
             />
           )}
         </View>
+
+        {type === 'link' && (
+          <View style={styles.iconContainer}>
+            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -134,6 +142,9 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     borderRadius: 25,
+  },
+  iconContainer: {
+    marginLeft: 'auto',
   },
 });
 

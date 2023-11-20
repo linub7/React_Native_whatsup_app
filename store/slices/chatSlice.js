@@ -111,6 +111,9 @@ const chatSlice = createSlice({
     makeEmptySelectedUsersForGroupChatAction: (state, action) => {
       state.groupChatUsers = [];
     },
+    // makeEmptyActiveConversationAction: (state, action) => {
+    //   state.activeConversation = {};
+    // },
   },
 });
 
@@ -128,6 +131,7 @@ export const {
     makeEmptyFilesAction,
     toggleSelectedUsersForGroupChatAction,
     makeEmptySelectedUsersForGroupChatAction,
+    // makeEmptyActiveConversationAction,
   },
 } = chatSlice;
 

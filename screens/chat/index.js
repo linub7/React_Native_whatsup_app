@@ -6,14 +6,13 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import {
   getChatMessagesHandler,
@@ -34,6 +33,7 @@ import {
 import SocketContext from '../../context/SocketContext';
 import {
   addMessageToActiveConversationAction,
+  makeEmptyActiveConversationAction,
   setActiveConversationMessagesAction,
   updateActiveConversationAndItsMessagesAction,
   updateMessageStarStatusAction,
@@ -41,6 +41,7 @@ import {
 import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
 import ChatScreenReplyTo from '../../components/chat-screen/reply-to';
 import { launchImagePicker, openCamera } from '../../utils/imagePickerHelper';
+import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
 
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -70,6 +71,7 @@ const ChatScreen = ({ navigation, route }) => {
       setFirstName('');
       setLastName('');
       setChatTitle('');
+      // handleMakeEmptyActiveConversation();
     };
   }, [activeConversation?._id]);
 
@@ -82,10 +84,23 @@ const ChatScreen = ({ navigation, route }) => {
       headerTitle: activeConversation?.name
         ? toCapitalizeWord(chatTitle)
         : getChatTitleFromName(),
+      headerRight: () => {
+        return (
+          <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+            {activeConversation?._id && (
+              <Item
+                title="Chat Settings"
+                iconName="settings-outline"
+                onPress={handleOnPressSettingsIcon}
+              />
+            )}
+          </HeaderButtons>
+        );
+      },
     });
 
     setChatUsers(activeConversation?.users);
-  }, [chatUsers]);
+  }, [chatUsers, activeConversation]);
 
   useEffect(() => {
     const handleGetChatMessages = async () => {
@@ -116,6 +131,9 @@ const ChatScreen = ({ navigation, route }) => {
     socket.on('stop-typing', () => setIsTyping(false));
   }, []);
 
+  // const handleMakeEmptyActiveConversation = () =>
+  //   dispatch(makeEmptyActiveConversationAction());
+
   const getChatTitleFromName = () => {
     return `${toCapitalizeWord(firstName)} ${toCapitalizeWord(lastName)}`;
   };
@@ -135,6 +153,24 @@ const ChatScreen = ({ navigation, route }) => {
         setIsTyping(false);
       }
     }, timer);
+  };
+
+  const handleSetReplyingTo = (item) => setReplyingTo(item);
+
+  const handleCancelReplyingTo = () => {
+    setReplyingTo();
+    setMessageText('');
+  };
+
+  const handleCancelSendImage = () => setTempImageUri('');
+
+  const handleOnPressSettingsIcon = () => {
+    const otherUser = activeConversation?.users?.find(
+      (item) => item?._id !== userData?._id
+    );
+    activeConversation?.isGroup
+      ? console.log('to chat settings screen')
+      : navigation.navigate('Contact', { user: otherUser });
   };
 
   const handleSendMessage = useCallback(async () => {
@@ -199,12 +235,6 @@ const ChatScreen = ({ navigation, route }) => {
     dispatch(updateMessageStarStatusAction(data?.data?.data));
   }, []);
 
-  const handleSetReplyingTo = (item) => setReplyingTo(item);
-  const handleCancelReplyingTo = () => {
-    setReplyingTo();
-    setMessageText('');
-  };
-
   const handlePickImage = useCallback(async () => {
     try {
       const tempUri = await launchImagePicker();
@@ -226,8 +256,6 @@ const ChatScreen = ({ navigation, route }) => {
       console.log(error);
     }
   }, [tempImageUri]);
-
-  const handleCancelSendImage = () => setTempImageUri('');
 
   const handleConfirmSendImage = useCallback(async () => {
     setIsLoading(true);

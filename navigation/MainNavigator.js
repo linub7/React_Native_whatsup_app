@@ -21,6 +21,7 @@ import ChatSettingsScreen from '../screens/chat-settings';
 import NewChatScreen from '../screens/new-chat';
 import { getConversationsAction } from '../store/slices/chatSlice';
 import { commonStyles } from '../constants/commonStyles';
+import ContactScreen from '../screens/contact';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -77,6 +78,16 @@ const StackNavigator = () => {
           component={ChatSettingsScreen}
           options={{
             headerTitle: 'Settings',
+            headerTitleAlign: 'center',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          name="Contact"
+          component={ContactScreen}
+          options={{
+            headerTitle: 'Contact Info',
+            headerTitleAlign: 'center',
             headerBackTitle: 'Back',
           }}
         />
