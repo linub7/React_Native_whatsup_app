@@ -111,6 +111,16 @@ const chatSlice = createSlice({
     makeEmptySelectedUsersForGroupChatAction: (state, action) => {
       state.groupChatUsers = [];
     },
+    updateConversationsAction: (state, action) => {
+      const { payload } = action;
+
+      let tmpConversations = [...state.conversations];
+      tmpConversations = tmpConversations.map((conversation) =>
+        conversation?._id !== payload?._id ? conversation : payload
+      );
+
+      state.conversations = tmpConversations;
+    },
     // makeEmptyActiveConversationAction: (state, action) => {
     //   state.activeConversation = {};
     // },
@@ -131,6 +141,7 @@ export const {
     makeEmptyFilesAction,
     toggleSelectedUsersForGroupChatAction,
     makeEmptySelectedUsersForGroupChatAction,
+    updateConversationsAction,
     // makeEmptyActiveConversationAction,
   },
 } = chatSlice;

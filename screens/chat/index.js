@@ -1,17 +1,14 @@
 import { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  ActivityIndicator,
   Alert,
   FlatList,
-  Image,
   ImageBackground,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AwesomeAlert from 'react-native-awesome-alerts';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import {
@@ -42,6 +39,7 @@ import { HIDE_ERROR_BANNER_TEXT_DURATION } from '../../constants';
 import ChatScreenReplyTo from '../../components/chat-screen/reply-to';
 import { launchImagePicker, openCamera } from '../../utils/imagePickerHelper';
 import CustomHeaderButton from '../../components/chat-list-screen/buttons/CustomHeaderButton';
+import CustomAwesomeAlert from '../../components/shared/custom-alert';
 
 const ChatScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -169,7 +167,9 @@ const ChatScreen = ({ navigation, route }) => {
       (item) => item?._id !== userData?._id
     );
     activeConversation?.isGroup
-      ? console.log('to chat settings screen')
+      ? navigation.navigate('ChatSettings', {
+          conversation: activeConversation,
+        })
       : navigation.navigate('Contact', { user: otherUser });
   };
 
@@ -382,34 +382,12 @@ const ChatScreen = ({ navigation, route }) => {
           />
         )}
 
-        <AwesomeAlert
-          show={tempImageUri !== ''}
-          title="Send Image?"
-          closeOnTouchOutside={true}
-          closeOnHardwareBackPress={false}
-          showCancelButton={true}
-          showConfirmButton={true}
-          cancelText="Cancel"
-          confirmText="Send Image"
-          confirmButtonColor={colors.green}
-          cancelButtonColor={colors.red}
-          titleStyle={styles.popupTitleStyle}
+        <CustomAwesomeAlert
+          tempImageUri={tempImageUri}
+          isLoading={isLoading}
           onCancelPressed={handleCancelSendImage}
-          onConfirmPressed={handleConfirmSendImage}
           onDismiss={handleCancelSendImage}
-          customView={
-            <View>
-              {isLoading && (
-                <ActivityIndicator size={'small'} color={colors.green} />
-              )}
-              {!isLoading && tempImageUri !== '' && (
-                <Image
-                  source={{ uri: tempImageUri }}
-                  style={styles.tempImageUriStyle}
-                />
-              )}
-            </View>
-          }
+          onConfirmPressed={handleConfirmSendImage}
         />
       </View>
     </SafeAreaView>

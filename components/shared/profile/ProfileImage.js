@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import defaultImage from '../../../assets/images/userImage.jpeg';
 import { colors } from '../../../constants/colors';
+import { DEFAULT_GROUP_IMAGE_URL } from '../../../constants';
 
 const ProfileImage = ({
   width,
@@ -13,6 +14,7 @@ const ProfileImage = ({
   loadedImageUrlFromServer,
   isEditable = false,
   listItem = false,
+  isGroup = false,
   showRemoveButton = false,
 }) => {
   const Container = isEditable ? TouchableOpacity : View;
@@ -30,7 +32,7 @@ const ProfileImage = ({
         />
       ) : (
         <Image
-          source={defaultImage}
+          source={isGroup ? { uri: DEFAULT_GROUP_IMAGE_URL } : defaultImage}
           style={{ ...styles.image, ...{ width, height } }}
         />
       )}
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     position: 'absolute',
     bottom: 0,
-    right: 144,
+    right: 0,
     backgroundColor: colors.lightGrey,
     borderRadius: 20,
     padding: 4,
