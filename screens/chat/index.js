@@ -71,7 +71,7 @@ const ChatScreen = ({ navigation, route }) => {
       setChatTitle('');
       // handleMakeEmptyActiveConversation();
     };
-  }, [activeConversation?._id]);
+  }, [activeConversation?._id, activeConversation?.name]);
 
   const dispatch = useDispatch();
 

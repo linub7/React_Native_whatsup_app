@@ -1,31 +1,39 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, Alert } from 'react-native';
+import { useCallback, useEffect, useReducer, useState } from 'react';
+import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import PageContainer from '../../components/shared/PageContainer';
 import PageTitle from '../../components/shared/PageTitle';
 import ProfileImage from '../../components/shared/profile/ProfileImage';
-import { toCapitalizeWord } from '../../utils/general';
 import { launchImagePicker } from '../../utils/imagePickerHelper';
-import { updateChatPictureHandler } from '../../api/chat';
+import { updateGroupChatHandler } from '../../api/chat';
 import {
   setActiveConversationAction,
   updateConversationsAction,
 } from '../../store/slices/chatSlice';
 import CustomAwesomeAlert from '../../components/shared/custom-alert';
-import CustomTextInput from '../../components/shared/input/CustomTextInput';
+import { formReducer } from '../../utils/reducers/formReducer';
+import ChatSettingsScreenSubmit from '../../components/chat-settings/submit';
+import ChatSettingsScreenChatNameOrInput from '../../components/chat-settings/chat-name-input';
+import { validateInput } from '../../utils/actions/formActions';
 
 const ChatSettingsScreen = ({ navigation, route }) => {
   const [mainConversation, setMainConversation] = useState({});
   const [tempImageUri, setTempImageUri] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [values, setValues] = useState({ chatName: mainConversation?.name });
 
   const conversation = route?.params?.conversation;
   const image = mainConversation?.picture?.url;
 
+  const { userData, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (!conversation) return;
     setMainConversation(conversation);
+    setValues({ chatName: conversation?.name });
 
     return () => {
       setTempImageUri('');
@@ -34,8 +42,53 @@ const ChatSettingsScreen = ({ navigation, route }) => {
     };
   }, [conversation]);
 
-  const { userData, token } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const initialState = {
+    inputValidities: {
+      chatName: false,
+    },
+    isFormValid: false,
+  };
+
+  const [formState, dispatchFormState] = useReducer(formReducer, initialState);
+
+  const handleInputChange = (inputId, inputValue) => {
+    const validationResult = validateInput(inputId, inputValue);
+    dispatchFormState({
+      inputId,
+      validationResult,
+    });
+
+    setValues({ ...values, [inputId]: inputValue });
+  };
+
+  const isUpdateButtonDisabled =
+    !formState.isFormValid ||
+    !values?.chatName ||
+    values?.chatName === mainConversation?.name;
+
+  const handleUpdate = useCallback(async () => {
+    const { chatName } = values;
+    const formData = new FormData();
+    formData.append('name', chatName);
+    setLoading(true);
+    const { err, data } = await updateGroupChatHandler(
+      mainConversation?._id,
+      formData,
+      token
+    );
+    if (err) {
+      console.log(err);
+      setLoading(false);
+      Alert.alert('OOPS', err?.error);
+      return;
+    }
+
+    setLoading(false);
+    setMainConversation(data?.data?.data);
+    Alert.alert('Well Done', 'Your group name updated Successfully ✅');
+    await dispatch(setActiveConversationAction(data?.data?.data));
+    await dispatch(updateConversationsAction(data?.data?.data));
+  }, [values, isLoading, dispatch, mainConversation]);
 
   const handleCancelSendImage = () => setTempImageUri('');
 
@@ -64,7 +117,7 @@ const ChatSettingsScreen = ({ navigation, route }) => {
     // Assume "photo" is the name of the form field the server expects
     formData.append('picture', { uri: tempImageUri, name: filename, type });
 
-    const { err, data } = await updateChatPictureHandler(
+    const { err, data } = await updateGroupChatHandler(
       mainConversation?._id,
       formData,
       token
@@ -98,12 +151,19 @@ const ChatSettingsScreen = ({ navigation, route }) => {
           isGroup={true}
           onPress={handlePickImage}
         />
-
-        {/* {userData?._id === mainConversation?.admin?._id ? (
-          <CustomTextInput  />
-        ) : (
-          <Text>{toCapitalizeWord(conversation?.name)}</Text>
-        )} */}
+        <ChatSettingsScreenChatNameOrInput
+          userId={userData?._id}
+          chatAdminId={mainConversation?.admin?._id}
+          conversationName={conversation?.name}
+          errorText={formState.inputValidities['chatName']}
+          value={values?.chatName}
+          handleInputChange={handleInputChange}
+        />
+        <ChatSettingsScreenSubmit
+          loading={loading}
+          isUpdateButtonDisabled={isUpdateButtonDisabled}
+          handleUpdate={handleUpdate}
+        />
       </ScrollView>
       <CustomAwesomeAlert
         tempImageUri={tempImageUri}

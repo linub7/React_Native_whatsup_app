@@ -64,7 +64,7 @@ export const getCommonChatsHandler = async (otherUser, token) => {
   }
 };
 
-export const updateChatPictureHandler = async (id, formData, token) => {
+export const updateGroupChatHandler = async (id, formData, token) => {
   try {
     const { data } = await client.put(`/chats/${id}`, formData, {
       headers: {
