@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -16,6 +22,8 @@ import { formReducer } from '../../utils/reducers/formReducer';
 import ChatSettingsScreenSubmit from '../../components/chat-settings/submit';
 import ChatSettingsScreenChatNameOrInput from '../../components/chat-settings/chat-name-input';
 import { validateInput } from '../../utils/actions/formActions';
+import ChatSettingsScreenChatUsers from '../../components/chat-settings/chat-users';
+import SocketContext from '../../context/SocketContext';
 
 const ChatSettingsScreen = ({ navigation, route }) => {
   const [mainConversation, setMainConversation] = useState({});
@@ -29,6 +37,8 @@ const ChatSettingsScreen = ({ navigation, route }) => {
 
   const { userData, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     if (!conversation) return;
@@ -159,10 +169,22 @@ const ChatSettingsScreen = ({ navigation, route }) => {
           value={values?.chatName}
           handleInputChange={handleInputChange}
         />
-        <ChatSettingsScreenSubmit
-          loading={loading}
-          isUpdateButtonDisabled={isUpdateButtonDisabled}
-          handleUpdate={handleUpdate}
+        {userData?._id === mainConversation?.admin?._id && (
+          <ChatSettingsScreenSubmit
+            loading={loading}
+            isUpdateButtonDisabled={isUpdateButtonDisabled}
+            handleUpdate={handleUpdate}
+          />
+        )}
+        <ChatSettingsScreenChatUsers
+          userId={userData?._id}
+          chatAdminId={mainConversation?.admin?._id}
+          userLength={mainConversation?.users?.length}
+          users={mainConversation?.users}
+          onlineUsers={[]}
+          socket={socket}
+          token={token}
+          userData={userData}
         />
       </ScrollView>
       <CustomAwesomeAlert

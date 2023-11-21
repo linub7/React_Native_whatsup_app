@@ -3,7 +3,7 @@ import {
   Image,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -76,7 +76,7 @@ const ChatListScreenChatItem = ({
   };
 
   return (
-    <TouchableOpacity
+    <TouchableWithoutFeedback
       onPress={() => handleNavigateToChatListScreen(otherUserId)}
     >
       <View style={styles.container}>
@@ -111,7 +111,7 @@ const ChatListScreenChatItem = ({
           </View>
         )}
       </View>
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   );
 };
 
