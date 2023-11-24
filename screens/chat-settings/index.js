@@ -185,6 +185,9 @@ const ChatSettingsScreen = ({ navigation, route }) => {
           socket={socket}
           token={token}
           userData={userData}
+          conversationId={mainConversation?._id}
+          isGroup={mainConversation?.isGroup}
+          conversationName={mainConversation?.name}
         />
       </ScrollView>
       <CustomAwesomeAlert

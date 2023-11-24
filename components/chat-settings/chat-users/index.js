@@ -10,9 +10,9 @@ const ChatSettingsScreenChatUsers = ({
   chatAdminId,
   users,
   userData,
-  token,
-  socket,
-  onlineUsers,
+  conversationId,
+  isGroup,
+  conversationName,
 }) => {
   return (
     <View style={styles.container}>
@@ -29,6 +29,9 @@ const ChatSettingsScreenChatUsers = ({
           key={user?._id}
           item={user}
           userData={userData}
+          conversationId={conversationId}
+          isGroup={isGroup}
+          conversationName={conversationName}
         />
       ))}
     </View>

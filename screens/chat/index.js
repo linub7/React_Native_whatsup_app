@@ -71,7 +71,7 @@ const ChatScreen = ({ navigation, route }) => {
       setChatTitle('');
       // handleMakeEmptyActiveConversation();
     };
-  }, [activeConversation?._id, activeConversation?.name]);
+  }, [activeConversation]);
 
   const dispatch = useDispatch();
 
@@ -329,6 +329,7 @@ const ChatScreen = ({ navigation, route }) => {
                       handleToggleStarMessage(item)
                     }
                     handleSetReplyingTo={() => handleSetReplyingTo(item)}
+                    isReply={item?.isReply}
                     repliedTo={item?.replyTo}
                     imageUrl={item?.files[0]?.url}
                     fullName={senderFullName}

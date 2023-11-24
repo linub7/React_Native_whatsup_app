@@ -24,6 +24,7 @@ const Bubble = ({
   fullName,
   isShowDateAndStar = true,
   isShowFullName = false,
+  isReply = false,
   imageUrl,
   handleToggleStarMessage = () => {},
   handleSetReplyingTo = () => {},
@@ -88,14 +89,19 @@ const Bubble = ({
           {isShowFullName && fullName && (
             <Text style={styles.fullName}>{fullName}</Text>
           )}
-          {repliedTo?.sender?._id && (
-            <Bubble
-              type={'reply'}
-              text={repliedTo?.message}
-              imageUrl={repliedTo?.files[0]?.url}
-              fullName={`${repliedTo?.sender?.firstName} ${repliedTo?.sender?.lastName}`}
-              isShowDateAndStar={false}
-            />
+          {isReply && repliedTo === null ? (
+            <Text style={styles.fullName}>Deleted Message</Text>
+          ) : (
+            isReply &&
+            repliedTo?.sender?._id && (
+              <Bubble
+                type={'reply'}
+                text={repliedTo?.message}
+                imageUrl={repliedTo?.files[0]?.url}
+                fullName={`${repliedTo?.sender?.firstName} ${repliedTo?.sender?.lastName}`}
+                isShowDateAndStar={false}
+              />
+            )
           )}
           <Text style={textStyle}>{text}</Text>
 

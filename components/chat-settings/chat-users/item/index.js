@@ -6,11 +6,22 @@ import ProfileImage from '../../../shared/profile/ProfileImage';
 import { colors } from '../../../../constants/colors';
 import { toCapitalizeWord } from '../../../../utils/general';
 
-const ChatSettingsScreenChatUsersItem = ({ item, userData }) => {
+const ChatSettingsScreenChatUsersItem = ({
+  item,
+  userData,
+  conversationId,
+  isGroup,
+  conversationName,
+}) => {
   const navigation = useNavigation();
 
   const handleNavigateToContactScreen = () =>
-    navigation.navigate('Contact', { user: item });
+    navigation.navigate('Contact', {
+      user: item,
+      conversationId,
+      isGroup,
+      conversationName,
+    });
 
   return (
     <TouchableWithoutFeedback onPress={() => handleNavigateToContactScreen()}>
@@ -39,7 +50,6 @@ const ChatSettingsScreenChatUsersItem = ({ item, userData }) => {
 };
 
 const styles = StyleSheet.create({
-  outerHeight: { flex: 1 },
   container: {
     flexDirection: 'row',
     paddingVertical: 7,
@@ -55,16 +65,6 @@ const styles = StyleSheet.create({
     fontFamily: 'medium',
     fontSize: 16,
     letterSpacing: 0.3,
-  },
-  subtitle: {
-    fontFamily: 'regular',
-    color: colors.grey,
-    letterSpacing: 0.3,
-  },
-  image: {
-    width: 25,
-    height: 25,
-    borderRadius: 25,
   },
   iconContainer: {
     marginLeft: 'auto',
