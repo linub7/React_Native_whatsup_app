@@ -44,6 +44,24 @@ export const sendReplyMessageHandler = async (messageId, formData, token) => {
   }
 };
 
+export const sendInfoMessageHandler = async (chat, message, token) => {
+  try {
+    const { data } = await client.post(
+      `/info-messages`,
+      { chat, message },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const toggleStarMessageHandler = async (messageId, chatId, token) => {
   try {
     const { data } = await client.put(

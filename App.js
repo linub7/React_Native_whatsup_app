@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { io } from 'socket.io-client';
 import { MenuProvider } from 'react-native-popup-menu';
+import ToastManager from 'toastify-react-native';
 
 import {
   APP_DEVELOPMENT,
@@ -66,6 +67,7 @@ export default function App() {
       <SocketContext.Provider value={socket}>
         <SafeAreaProvider style={styles.container} onLayout={onLayout}>
           <MenuProvider>
+            <ToastManager />
             <AppNavigator />
           </MenuProvider>
         </SafeAreaProvider>

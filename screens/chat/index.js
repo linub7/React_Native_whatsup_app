@@ -60,6 +60,10 @@ const ChatScreen = ({ navigation, route }) => {
   const { userData, token } = useSelector((state) => state.auth);
   const { activeConversation, messages } = useSelector((state) => state.chat);
 
+  const dispatch = useDispatch();
+
+  const socket = useContext(SocketContext);
+
   useEffect(() => {
     if (!activeConversation) return;
     setFirstName(getConversationFirstName(userData, activeConversation?.users));
@@ -72,10 +76,6 @@ const ChatScreen = ({ navigation, route }) => {
       // handleMakeEmptyActiveConversation();
     };
   }, [activeConversation]);
-
-  const dispatch = useDispatch();
-
-  const socket = useContext(SocketContext);
 
   useEffect(() => {
     navigation.setOptions({

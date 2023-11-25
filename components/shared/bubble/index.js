@@ -65,6 +65,11 @@ const Bubble = ({
     case 'reply':
       bubbleStyle.backgroundColor = '#F2F2F2';
       break;
+    case 'info':
+      bubbleStyle.backgroundColor = 'white';
+      bubbleStyle.alignItems = 'center';
+      textStyle.color = colors.textColor;
+      break;
     default:
       break;
   }

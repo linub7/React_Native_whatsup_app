@@ -7,6 +7,7 @@ const initialState = {
   messages: [],
   files: [],
   groupChatUsers: [],
+  chatInfoMessages: [],
 };
 
 const chatSlice = createSlice({
@@ -121,6 +122,10 @@ const chatSlice = createSlice({
 
       state.conversations = tmpConversations;
     },
+    getInfoMessageToMainConversationAction: (state, action) => {
+      const { payload } = action;
+      state.chatInfoMessages = payload;
+    },
     // makeEmptyActiveConversationAction: (state, action) => {
     //   state.activeConversation = {};
     // },
@@ -142,6 +147,7 @@ export const {
     toggleSelectedUsersForGroupChatAction,
     makeEmptySelectedUsersForGroupChatAction,
     updateConversationsAction,
+    getInfoMessageToMainConversationAction,
     // makeEmptyActiveConversationAction,
   },
 } = chatSlice;

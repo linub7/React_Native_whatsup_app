@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Toast } from 'toastify-react-native';
 
 import PageContainer from '../../components/shared/PageContainer';
 import ProfileImage from '../../components/shared/profile/ProfileImage';
@@ -18,6 +19,7 @@ import {
   setActiveConversationAction,
   setActiveConversationMessagesAction,
 } from '../../store/slices/chatSlice';
+import { sendInfoMessageHandler } from '../../api/message';
 
 const ContactScreen = ({ navigation, route }) => {
   const [commonChats, setCommonChats] = useState([]);
@@ -56,6 +58,8 @@ const ContactScreen = ({ navigation, route }) => {
   const handleRemoveUserFromGroupChat = useCallback(async () => {
     setIsLoading(true);
     const removedUser = user?._id;
+    const chat = conversationId;
+    const message = `${user?.firstName} ${user?.lastName} removed from ${conversationName}`;
 
     const { err, data } = await removeUserFromGroupChatHandler(
       conversationId,
@@ -68,8 +72,20 @@ const ContactScreen = ({ navigation, route }) => {
       Alert.alert('OOPS', err?.error);
       return;
     }
+    const { err: infoMessageError, data: infoMessageData } =
+      await sendInfoMessageHandler(chat, message, token);
+
+    if (infoMessageError) {
+      console.log(infoMessageError);
+      setIsLoading(false);
+      Alert.alert('OOPS', infoMessageError?.error);
+      return;
+    }
+
     dispatch(setActiveConversationAction(data?.data?.data?.chat));
     dispatch(setActiveConversationMessagesAction(data?.data?.data?.messages));
+
+    Toast.success(message);
     navigation.navigate('ChatSettings', {
       conversation: data?.data?.data?.chat,
     });
