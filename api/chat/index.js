@@ -86,6 +86,24 @@ export const removeUserFromGroupChatHandler = async (
   }
 };
 
+export const addUserToGroupChatHandler = async (id, userIds, token) => {
+  try {
+    const { data } = await client.post(
+      `/chats/users/${id}`,
+      { userIds },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const updateGroupChatHandler = async (id, formData, token) => {
   try {
     const { data } = await client.put(`/chats/${id}`, formData, {

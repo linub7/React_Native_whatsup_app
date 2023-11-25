@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { colors } from '../../../constants/colors';
-import ChatSettingsScreenChatUsersAdd from './add';
 import ChatSettingsScreenChatUsersItem from './item';
+import ChatSettingsScreenActionItem from './action-item';
 
 const ChatSettingsScreenChatUsers = ({
   userLength,
@@ -14,17 +15,28 @@ const ChatSettingsScreenChatUsers = ({
   isGroup,
   conversationName,
 }) => {
+  const navigation = useNavigation();
+  const handlePressViewAll = () =>
+    navigation.navigate('DataList', {
+      title: 'Participants',
+      data: users,
+      type: 'users',
+      conversationId,
+      conversationName,
+    });
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>{userLength} Participants</Text>
       {userId === chatAdminId && (
-        <ChatSettingsScreenChatUsersAdd
+        <ChatSettingsScreenActionItem
           title={'Add Users'}
+          name={'add-outline'}
           onPress={() => console.log('Add users')}
         />
       )}
 
-      {users?.map((user) => (
+      {users?.slice(0, 4).map((user) => (
         <ChatSettingsScreenChatUsersItem
           key={user?._id}
           item={user}
@@ -34,6 +46,14 @@ const ChatSettingsScreenChatUsers = ({
           conversationName={conversationName}
         />
       ))}
+
+      {users?.length > 4 && (
+        <ChatSettingsScreenActionItem
+          title={'View All'}
+          imageIsHide={true}
+          onPress={handlePressViewAll}
+        />
+      )}
     </View>
   );
 };

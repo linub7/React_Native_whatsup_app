@@ -15,13 +15,15 @@ const ChatSettingsScreenChatUsersItem = ({
 }) => {
   const navigation = useNavigation();
 
-  const handleNavigateToContactScreen = () =>
+  const handleNavigateToContactScreen = () => {
+    if (userData?._id?.toString() === item?._id) return;
     navigation.navigate('Contact', {
       user: item,
       conversationId,
       isGroup,
       conversationName,
     });
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => handleNavigateToContactScreen()}>

@@ -22,6 +22,7 @@ import NewChatScreen from '../screens/new-chat';
 import { getConversationsAction } from '../store/slices/chatSlice';
 import { commonStyles } from '../constants/commonStyles';
 import ContactScreen from '../screens/contact';
+import DataListScreen from '../screens/data-list';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -95,6 +96,15 @@ const StackNavigator = () => {
         <Stack.Screen
           name="ChatScreen"
           component={ChatScreen}
+          options={{
+            headerBackTitle: 'Back',
+            headerTitleAlign: 'center',
+            headerTitle: '',
+          }}
+        />
+        <Stack.Screen
+          name="DataList"
+          component={DataListScreen}
           options={{
             headerBackTitle: 'Back',
             headerTitleAlign: 'center',

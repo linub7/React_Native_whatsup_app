@@ -2,15 +2,28 @@ import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../../../constants/colors';
 
-const ChatSettingsScreenChatUsersAdd = ({ title, onPress = () => {} }) => {
+const ChatSettingsScreenActionItem = ({
+  name,
+  title,
+  imageIsHide = false,
+  onPress = () => {},
+}) => {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
-        <View style={styles.leftIconContainer}>
-          <Ionicons name="add-outline" size={24} color={colors.blue} />
-        </View>
+        {!imageIsHide && (
+          <View style={styles.leftIconContainer}>
+            <Ionicons name={name} size={24} color={colors.blue} />
+          </View>
+        )}
         <View style={styles.textContainer}>
-          <Text numberOfLines={1} style={styles.title}>
+          <Text
+            numberOfLines={1}
+            style={{
+              ...styles.title,
+              color: imageIsHide ? colors.textColor : colors.blue,
+            }}
+          >
             {title}
           </Text>
         </View>
@@ -43,8 +56,7 @@ const styles = StyleSheet.create({
     fontFamily: 'medium',
     fontSize: 16,
     letterSpacing: 0.3,
-    color: colors.blue,
   },
 });
 
-export default ChatSettingsScreenChatUsersAdd;
+export default ChatSettingsScreenActionItem;
