@@ -18,6 +18,9 @@ const chatSlice = createSlice({
       const { payload } = action;
       state.activeConversation = payload;
     },
+    makeEmptyConversationsAction: (state, action) => {
+      state.conversations = [];
+    },
     getConversationsAction: (state, action) => {
       const { payload } = action;
       state.conversations = payload;
@@ -148,6 +151,7 @@ export const {
     makeEmptySelectedUsersForGroupChatAction,
     updateConversationsAction,
     getInfoMessageToMainConversationAction,
+    makeEmptyConversationsAction,
     // makeEmptyActiveConversationAction,
   },
 } = chatSlice;

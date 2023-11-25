@@ -12,9 +12,16 @@ import PageContainer from '../../components/shared/PageContainer';
 import PageTitle from '../../components/shared/PageTitle';
 import ProfileImage from '../../components/shared/profile/ProfileImage';
 import { launchImagePicker } from '../../utils/imagePickerHelper';
-import { updateGroupChatHandler } from '../../api/chat';
 import {
+  deleteGroupChatByAdminHandler,
+  leaveUserFromGroupChatHandler,
+  updateGroupChatHandler,
+} from '../../api/chat';
+import {
+  getConversationsAction,
+  makeEmptyConversationsAction,
   setActiveConversationAction,
+  setActiveConversationMessagesAction,
   updateConversationsAction,
 } from '../../store/slices/chatSlice';
 import CustomAwesomeAlert from '../../components/shared/custom-alert';
@@ -24,12 +31,15 @@ import ChatSettingsScreenChatNameOrInput from '../../components/chat-settings/ch
 import { validateInput } from '../../utils/actions/formActions';
 import ChatSettingsScreenChatUsers from '../../components/chat-settings/chat-users';
 import SocketContext from '../../context/SocketContext';
+import SubmitButton from '../../components/auth-screen/buttons/SubmitButton';
+import { colors } from '../../constants/colors';
 
 const ChatSettingsScreen = ({ navigation, route }) => {
   const [mainConversation, setMainConversation] = useState({});
   const [tempImageUri, setTempImageUri] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deleteOrLeaveLoading, setDeleteOrLeaveLoading] = useState(false);
   const [values, setValues] = useState({ chatName: mainConversation?.name });
 
   const conversation = route?.params?.conversation;
@@ -146,6 +156,39 @@ const ChatSettingsScreen = ({ navigation, route }) => {
     await dispatch(updateConversationsAction(data?.data?.data));
   }, [isLoading, tempImageUri, mainConversation]);
 
+  const handleDeleteChat = useCallback(async () => {
+    setDeleteOrLeaveLoading(true);
+    const { err, data } = await deleteGroupChatByAdminHandler(
+      mainConversation?._id,
+      token
+    );
+    if (err) {
+      console.log(err);
+      setDeleteOrLeaveLoading(false);
+      Alert.alert('OOPS', err?.error);
+      return;
+    }
+    dispatch(makeEmptyConversationsAction());
+    dispatch(getConversationsAction(data?.data?.data));
+    navigation.navigate('ChatList');
+  }, [deleteOrLeaveLoading, mainConversation, dispatch, navigation]);
+
+  const handleLeaveChat = useCallback(async () => {
+    setDeleteOrLeaveLoading(true);
+    const { err, data } = await leaveUserFromGroupChatHandler(
+      mainConversation?._id,
+      token
+    );
+    if (err) {
+      console.log(err);
+      setDeleteOrLeaveLoading(false);
+      Alert.alert('OOPS', err?.error);
+      return;
+    }
+    dispatch(getConversationsAction(data?.data?.data));
+    navigation.navigate('ChatList');
+  }, [deleteOrLeaveLoading, mainConversation, dispatch, navigation]);
+
   return (
     <PageContainer>
       <PageTitle title={'Chat Settings'} />
@@ -189,6 +232,24 @@ const ChatSettingsScreen = ({ navigation, route }) => {
           isGroup={mainConversation?.isGroup}
           conversationName={mainConversation?.name}
         />
+
+        {mainConversation?.admin?._id === userData?._id ? (
+          <SubmitButton
+            label={`Delete ${mainConversation?.name} Chat?!`}
+            onPress={handleDeleteChat}
+            disabled={deleteOrLeaveLoading}
+            color={colors.red}
+            additionalStyle={styles.submitBtn}
+          />
+        ) : (
+          <SubmitButton
+            label={`Leave ${mainConversation?.name} Chat?`}
+            onPress={handleLeaveChat}
+            disabled={deleteOrLeaveLoading}
+            color={colors.red}
+            additionalStyle={styles.submitBtn}
+          />
+        )}
       </ScrollView>
       <CustomAwesomeAlert
         tempImageUri={tempImageUri}
@@ -210,6 +271,11 @@ const styles = StyleSheet.create({
   scrollView: {
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
+  },
+  submitBtn: {
+    marginBottom: 20,
+    width: '100%',
   },
 });
 

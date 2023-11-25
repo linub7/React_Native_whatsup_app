@@ -100,3 +100,35 @@ export const updateGroupChatHandler = async (id, formData, token) => {
     return { err: response?.data };
   }
 };
+
+export const leaveUserFromGroupChatHandler = async (id, token) => {
+  try {
+    const { data } = await client.put(
+      `/chats/leave/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
+export const deleteGroupChatByAdminHandler = async (id, token) => {
+  try {
+    const { data } = await client.delete(`/chats/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
