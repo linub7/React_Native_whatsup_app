@@ -23,6 +23,7 @@ import { getConversationsAction } from '../store/slices/chatSlice';
 import { commonStyles } from '../constants/commonStyles';
 import ContactScreen from '../screens/contact';
 import DataListScreen from '../screens/data-list';
+import AddUsersScreen from '../screens/add-users';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -116,6 +117,14 @@ const StackNavigator = () => {
         <Stack.Screen
           name="ٔNewChatScreen"
           component={NewChatScreen}
+          options={{
+            headerBackTitle: 'Back',
+            headerTitleAlign: 'center',
+          }}
+        />
+        <Stack.Screen
+          name="ٔAddUsersScreen"
+          component={AddUsersScreen}
           options={{
             headerBackTitle: 'Back',
             headerTitleAlign: 'center',

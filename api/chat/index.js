@@ -64,6 +64,20 @@ export const getCommonChatsHandler = async (otherUser, token) => {
   }
 };
 
+export const getChatStarredMessagesHandler = async (chatId, token) => {
+  try {
+    const { data } = await client.get(`/chats/starred-messages/${chatId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const removeUserFromGroupChatHandler = async (
   id,
   removedUser,
@@ -86,7 +100,7 @@ export const removeUserFromGroupChatHandler = async (
   }
 };
 
-export const addUserToGroupChatHandler = async (id, userIds, token) => {
+export const addUsersToGroupChatHandler = async (id, userIds, token) => {
   try {
     const { data } = await client.post(
       `/chats/users/${id}`,

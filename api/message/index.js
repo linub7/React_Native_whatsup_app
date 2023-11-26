@@ -14,6 +14,20 @@ export const getChatMessagesHandler = async (chatId, token) => {
   }
 };
 
+export const getGroupChatInfoMessagesHandler = async (chatId, token) => {
+  try {
+    const { data } = await client.get(`/info-messages/${chatId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data };
+  } catch (error) {
+    const { response } = error;
+    return { err: response?.data };
+  }
+};
+
 export const sendMessageHandler = async (formData, token) => {
   try {
     const { data } = await client.post(`/messages`, formData, {

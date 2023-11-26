@@ -1,9 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { colors } from '../../../constants/colors';
 import ChatSettingsScreenChatUsersItem from './item';
 import ChatSettingsScreenActionItem from './action-item';
+import { getChatStarredMessagesHandler } from '../../../api/chat';
+import { getGroupChatInfoMessagesHandler } from '../../../api/message';
 
 const ChatSettingsScreenChatUsers = ({
   userLength,
@@ -14,8 +17,10 @@ const ChatSettingsScreenChatUsers = ({
   conversationId,
   isGroup,
   conversationName,
+  token,
 }) => {
   const navigation = useNavigation();
+
   const handlePressViewAll = () =>
     navigation.navigate('DataList', {
       title: 'Participants',
@@ -25,6 +30,53 @@ const ChatSettingsScreenChatUsers = ({
       conversationName,
     });
 
+  const handlePressAddUsers = () =>
+    navigation.navigate('ٔAddUsersScreen', {
+      isGroupChat: true,
+      existingUsers: users,
+      conversationId,
+    });
+
+  const handlePressStarredMessages = useCallback(async () => {
+    const { err, data } = await getChatStarredMessagesHandler(
+      conversationId,
+      token
+    );
+    if (err) {
+      console.log(err);
+      Alert.alert('OOPS', err?.error);
+      return;
+    }
+
+    navigation.navigate('DataList', {
+      title: 'Starred Messages',
+      data: data?.data?.data,
+      type: 'messages',
+      conversationId,
+      conversationName,
+    });
+  }, [conversationId]);
+
+  const handlePressSystemInfoMessages = useCallback(async () => {
+    const { err, data } = await getGroupChatInfoMessagesHandler(
+      conversationId,
+      token
+    );
+    if (err) {
+      console.log(err);
+      Alert.alert('OOPS', err?.error);
+      return;
+    }
+
+    navigation.navigate('DataList', {
+      title: 'Info Messages',
+      data: data?.data?.data,
+      type: 'info-messages',
+      conversationId,
+      conversationName,
+    });
+  }, [conversationId]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>{userLength} Participants</Text>
@@ -32,11 +84,11 @@ const ChatSettingsScreenChatUsers = ({
         <ChatSettingsScreenActionItem
           title={'Add Users'}
           name={'add-outline'}
-          onPress={() => console.log('Add users')}
+          onPress={handlePressAddUsers}
         />
       )}
 
-      {users?.slice(0, 4).map((user) => (
+      {users?.slice(0, 2).map((user) => (
         <ChatSettingsScreenChatUsersItem
           key={user?._id}
           item={user}
@@ -47,11 +99,25 @@ const ChatSettingsScreenChatUsers = ({
         />
       ))}
 
-      {users?.length > 4 && (
+      {users?.length > 2 && (
         <ChatSettingsScreenActionItem
           title={'View All'}
-          imageIsHide={true}
+          iconIsHide={true}
           onPress={handlePressViewAll}
+        />
+      )}
+
+      <ChatSettingsScreenActionItem
+        title={'Starred messages'}
+        iconIsHide={true}
+        onPress={handlePressStarredMessages}
+      />
+
+      {userId === chatAdminId && (
+        <ChatSettingsScreenActionItem
+          title={'System Info Messages'}
+          iconIsHide={true}
+          onPress={handlePressSystemInfoMessages}
         />
       )}
     </View>

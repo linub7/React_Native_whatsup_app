@@ -1,17 +1,18 @@
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
 import { colors } from '../../../../constants/colors';
 
 const ChatSettingsScreenActionItem = ({
   name,
   title,
-  imageIsHide = false,
+  iconIsHide = false,
   onPress = () => {},
 }) => {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
-        {!imageIsHide && (
+        {!iconIsHide && (
           <View style={styles.leftIconContainer}>
             <Ionicons name={name} size={24} color={colors.blue} />
           </View>
@@ -21,7 +22,7 @@ const ChatSettingsScreenActionItem = ({
             numberOfLines={1}
             style={{
               ...styles.title,
-              color: imageIsHide ? colors.textColor : colors.blue,
+              color: iconIsHide ? colors.textColor : colors.blue,
             }}
           >
             {title}

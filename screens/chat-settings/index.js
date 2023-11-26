@@ -21,7 +21,6 @@ import {
   getConversationsAction,
   makeEmptyConversationsAction,
   setActiveConversationAction,
-  setActiveConversationMessagesAction,
   updateConversationsAction,
 } from '../../store/slices/chatSlice';
 import CustomAwesomeAlert from '../../components/shared/custom-alert';
@@ -71,6 +70,11 @@ const ChatSettingsScreen = ({ navigation, route }) => {
 
   const [formState, dispatchFormState] = useReducer(formReducer, initialState);
 
+  const isUpdateButtonDisabled =
+    !formState.isFormValid ||
+    !values?.chatName ||
+    values?.chatName === mainConversation?.name;
+
   const handleInputChange = (inputId, inputValue) => {
     const validationResult = validateInput(inputId, inputValue);
     dispatchFormState({
@@ -81,10 +85,7 @@ const ChatSettingsScreen = ({ navigation, route }) => {
     setValues({ ...values, [inputId]: inputValue });
   };
 
-  const isUpdateButtonDisabled =
-    !formState.isFormValid ||
-    !values?.chatName ||
-    values?.chatName === mainConversation?.name;
+  const handleCancelSendImage = () => setTempImageUri('');
 
   const handleUpdate = useCallback(async () => {
     const { chatName } = values;
@@ -109,8 +110,6 @@ const ChatSettingsScreen = ({ navigation, route }) => {
     await dispatch(setActiveConversationAction(data?.data?.data));
     await dispatch(updateConversationsAction(data?.data?.data));
   }, [values, isLoading, dispatch, mainConversation]);
-
-  const handleCancelSendImage = () => setTempImageUri('');
 
   const handlePickImage = useCallback(async () => {
     try {
@@ -274,7 +273,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   submitBtn: {
-    marginBottom: 20,
+    marginBottom: 10,
     width: '100%',
   },
 });
