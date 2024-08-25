@@ -38,9 +38,7 @@ const TabNavigator = () => {
           let iconName;
 
           if (route.name === 'ChatList') {
-            iconName = focused
-              ? 'ios-chatbubble-sharp'
-              : 'ios-chatbubble-outline';
+            iconName = focused ? 'chatbubble-sharp' : 'chatbubble-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings-sharp' : 'settings-outline';
           }

@@ -40,38 +40,34 @@ const chatSlice = createSlice({
         (conversation) =>
           conversation?._id?.toString() === payload?.chat?._id?.toString()
       );
-      const conversation = {
-        ...relatedConversation,
-        latestMessage: payload,
-      };
+      relatedConversation.latestMessage = payload;
       const idx = state.conversations.findIndex(
-        (el) => el?._id === conversation._id
+        (el) => el?._id?.toString() === relatedConversation?._id?.toString()
       );
       state.conversations.splice(idx, 1);
-      state.conversations.unshift(conversation);
+      state.conversations.unshift(relatedConversation);
     },
     updateActiveConversationAndItsMessagesAction: (state, action) => {
       const { payload } = action;
       const activeConversation = state.activeConversation;
       // update messages
-      if (activeConversation?._id === payload?.conversation?._id) {
-        state.messages = [...state.messages, payload];
-      }
+      if (
+        activeConversation?._id?.toString() !== payload?.chat?._id?.toString()
+      )
+        return;
+      state.messages = [...state.messages, payload];
+
       // update conversation
       const relatedConversation = state.conversations.find(
         (conversation) =>
-          conversation?._id?.toString() ===
-          payload?.conversation?._id?.toString()
+          conversation?._id?.toString() === payload?.chat?._id?.toString()
       );
-      const conversation = {
-        ...relatedConversation,
-        latestMessage: payload,
-      };
+      relatedConversation.latestMessage = payload;
       const idx = state.conversations.findIndex(
-        (el) => el?._id === conversation._id
+        (el) => el?._id?.toString() === relatedConversation?._id?.toString()
       );
       state.conversations.splice(idx, 1);
-      state.conversations.unshift(conversation);
+      state.conversations.unshift(relatedConversation);
     },
     updateMessageStarStatusAction: (state, action) => {
       const { payload } = action;

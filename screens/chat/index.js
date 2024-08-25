@@ -120,7 +120,6 @@ const ChatScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     socket.on('receive-message', (message) => {
-      console.log('new-message received: ', message);
       dispatch(updateActiveConversationAndItsMessagesAction(message));
     });
 

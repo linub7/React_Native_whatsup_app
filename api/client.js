@@ -5,8 +5,6 @@ import { APP_BACKEND_PRODUCTION_URL } from '@env';
 
 const baseURL = `${APP_BACKEND_PRODUCTION_URL}/api/v1`;
 
-console.log({ baseURL });
-
 const client = axios.create({
   baseURL,
 });

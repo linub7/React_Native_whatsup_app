@@ -76,7 +76,6 @@ const ContactScreen = ({ navigation, route }) => {
       await sendInfoMessageHandler(chat, message, token);
 
     if (infoMessageError) {
-      console.log(infoMessageError);
       setIsLoading(false);
       Alert.alert('OOPS', infoMessageError?.error);
       return;

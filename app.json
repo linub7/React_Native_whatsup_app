@@ -14,7 +14,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -38,7 +40,8 @@
             "./local/assets/notification-sound-other.wav"
           ]
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

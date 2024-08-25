@@ -4,8 +4,11 @@ export const toCapitalizeWord = (word) =>
 export const getReceiverId = (user, users) =>
   users[0]?._id === user?._id ? users[1]?._id : users[0]?._id;
 
-export const getConversationFirstName = (user, users) =>
-  users[0]?._id === user?._id ? users[1]?.firstName : users[0]?.firstName;
+export const getConversationFirstName = (user, users) => {
+  return users[0]?._id === user?._id
+    ? users[1]?.firstName
+    : users[0]?.firstName;
+};
 
 export const getConversationLastName = (user, users) =>
   users[0]?._id === user?._id ? users[1]?.lastName : users[0]?.lastName;
